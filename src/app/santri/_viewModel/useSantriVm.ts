@@ -48,6 +48,16 @@ export const useSantriVM = () => {
       type: "text" as const,
       placeholder: "Cari Nama Santri",
     },
+    {
+      key: "status",
+      label: "status",
+        type: "select" as const,
+      options: [
+        { value: "active", label: "Aktif" },
+        { value: "incative", label: "Tidak Aktif" },
+      ],
+      placeholder: "Pilih Status",
+    },
   ];
 
   const initialFilters = Object.fromEntries(filterFields.map((f) => [f.key, ""]));
