@@ -7,10 +7,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 
 export const loginSchema = yup.object({
-  email: yup
-    .string()
-    .required("* Email wajib diisi")
-    .email("* Format email yang anda masukkan tidak valid"),
+  email: yup.string().required("* Email wajib diisi").email("* Format email yang anda masukkan tidak valid"),
   password: yup.string().required("* Password wajib diisi"),
 });
 
@@ -18,9 +15,7 @@ export type LoginFormValues = yup.InferType<typeof loginSchema>;
 
 export const useLoginForm = () => {
   return useForm<LoginFormValues>({
-    resolver: yupResolver<LoginFormValues, undefined, LoginFormValues>(
-      loginSchema
-    ),
+    resolver: yupResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -65,7 +60,7 @@ export function useLoginViewModel() {
 
         showToast("Login Sukses", "SUCCESS");
       }
-    } catch (error) {
+    } catch (error : any) {
       showToast(error.message, "ERROR");
     }
   };

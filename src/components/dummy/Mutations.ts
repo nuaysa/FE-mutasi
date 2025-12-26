@@ -9,7 +9,6 @@ export const mutationDummy: Mutation[] = [
     category: "Operasional",
     information: "SPP Santri",
     description: "Pembayaran SPP santri kelas 7–9",
-    status: "lunas",
   },
   {
     id: "2",
@@ -19,7 +18,6 @@ export const mutationDummy: Mutation[] = [
     category: "Operasional",
     information: "Toko ATK Amanah",
     description: "Pulpen, buku tulis, spidol",
-    status: "sukses",
   },
   {
     id: "3",
@@ -29,7 +27,6 @@ export const mutationDummy: Mutation[] = [
     category: "Operasional",
     information: "Donasi wali santri",
     description: "Donasi pembangunan asrama",
-    status: "lunas",
   },
   {
     id: "4",
@@ -39,7 +36,6 @@ export const mutationDummy: Mutation[] = [
     category: "Konsumsi",
     information: "Warung Sembako Barokah",
     description: "Beras, minyak, telur, bumbu",
-    status: "sukses",
   },
   {
     id: "5",
@@ -49,7 +45,6 @@ export const mutationDummy: Mutation[] = [
     category: "Pemeliharaan",
     information: "Tukang Bangunan",
     description: "Perbaikan atap ruang kelas",
-    status: "PENDING",
   },
   {
     id: "6",
@@ -59,6 +54,5 @@ export const mutationDummy: Mutation[] = [
     amount: 950000,
     information: "Infak Jumat",
     description: "Infak jamaah sholat Jumat",
-    status: "lunas",
   },
 ];

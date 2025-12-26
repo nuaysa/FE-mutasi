@@ -1,6 +1,6 @@
+import { X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
-import { CLOSE } from "@/components/icons";
 
 interface ModalProps {
   isOpen: boolean;
@@ -59,7 +59,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
           onClick={onClose}
           className="absolute right-3 top-3 text-neutral-black cursor-pointer"
         >
-          <CLOSE width={24} height={24} />
+          <X size={15} />
         </button>
         {children}
       </div>

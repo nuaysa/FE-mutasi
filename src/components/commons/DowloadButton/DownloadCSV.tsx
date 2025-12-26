@@ -1,7 +1,7 @@
 "use client";
 import Papa from "papaparse";
 
-export function downloadCSVFromRawData(
+export default function downloadCSVFromRawData(
   rawData: object[] | object,
   fileName: string
 ): void {
