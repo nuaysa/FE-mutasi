@@ -4,10 +4,10 @@ import * as yup from "yup";
 
 export const mutationSchema = yup.object({
   date: yup.string().required("wajib diisi").defined(),
-  type: yup.mixed<"income" | "outcome">().oneOf(["income", "outcome"]).required("wajib diisi"),
+  type: yup.mixed<"income" | "outcome">().oneOf(["income", "outcome"]).optional().default('income'),
   amount: yup.number().required("wajib diisi"),
   description: yup.string().optional().default(''),
-  information: yup.string().required("wajib diisi"),
+  information: yup.string().optional().default(''),
   category: yup.string().required("wajib diisi"),
 });
 

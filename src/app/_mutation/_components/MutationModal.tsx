@@ -15,11 +15,10 @@ interface IncomeModalProps {
 
 export default function MutationModal({ isOpen, onClose, vm }: IncomeModalProps) {
   const { mutationForm, onSubmit, mode } = vm;
-  const { handleSubmit, watch } = mutationForm;
+  const { handleSubmit } = mutationForm;
 
-  const type = watch("type") ?? mode;
-
-  const fields = [...(type === "income" ? incomeFields : []), ...(type === "outcome" ? outcomeFields : []), ...sharedFields];
+  const fields = [...(mode === "income" ? incomeFields : []),
+   ...(mode === "outcome" ? outcomeFields : []), ...sharedFields];
 
   const isMobile = useIsMobile();
   const ModalComponent = isMobile ? BottomSheetModal : BaseModal;
@@ -29,10 +28,10 @@ export default function MutationModal({ isOpen, onClose, vm }: IncomeModalProps)
       isOpen={isOpen}
       onClose={onClose}
       cancelText="Batal"
-      submitText={type === "income" ? "Simpan Pemasukan" : "Simpan Pengeluaran"}
+      submitText={mode === "income" ? "Simpan Pemasukan" : "Simpan Pengeluaran"}
       submitIcon={<Plus />}
       onSubmit={handleSubmit(onSubmit)}
-      title={type === "income" ? "Catat Pemasukan" : "Catat Pengeluaran"}
+      title={mode === "income" ? "Catat Pemasukan" : "Catat Pengeluaran"}
       isAction={false}
     >
       <DynamicForm fields={fields} form={mutationForm} />

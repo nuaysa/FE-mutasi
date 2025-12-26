@@ -1,7 +1,7 @@
 export interface Mutation {
   id?: string;
   date: string;
-  type: "income" | "outcome";
+  type?: "income" | "outcome";
 
   amount: number;
   information: string; // vendor / santri

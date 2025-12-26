@@ -9,6 +9,8 @@ import { useToast } from "@/contexts/ToastContext";
 import { Mutation } from "../model";
 import { useMutationForm } from "../_components/MutationSchema";
 import { GetAllmutationsParams } from "@/api/types/types";
+import { dummyCategories, dummyVendors } from "@/components/dummy/Settings";
+import { mapToOptionsByKey } from "@/utils/helpers";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -55,20 +57,24 @@ export const useMutationVM = () => {
       label: "Jenis Transaksi",
       type: "select" as const,
       options: [
-        { value: "income", label: "Income" },
-        { value: "outcome", label: "Outcome" },
+        { value: "income", label: "Pemasukan" },
+        { value: "outcome", label: "Pengeluaran" },
       ],
       placeholder: "Jenis Transaksi",
+    },
+    {
+      key: "category",
+      label: "category",
+      type: "select" as const,
+      placeholder: "Kategori",
+         options: mapToOptionsByKey(dummyCategories, "name"),
     },
     {
       key: "information",
       label: "information",
       type: "select" as const,
       placeholder: "Vendor/Pihak Ke-3",
-      options: [
-        { value: "true", label: "Active" },
-        { value: "false", label: "Inactive" },
-      ],
+      options: mapToOptionsByKey(dummyVendors, "name"),
     },
   ];
 
@@ -107,10 +113,8 @@ export const useMutationVM = () => {
 
         // const response = await getAllmutations(apiParams);
 
-
-          // setmutations(response.data.items);
-          // setTotalItems(response.data.totalItems);
-        
+        // setmutations(response.data.items);
+        // setTotalItems(response.data.totalItems);
       } catch (error: any) {
         showToast(error.message, "ERROR");
       } finally {
@@ -169,7 +173,7 @@ export const useMutationVM = () => {
       } else if (mode == "outcome") {
         payload.type = "outcome";
       }
-      
+
       // await createMutation(payload);
 
       setIsCreateModalOpen(false);
@@ -181,26 +185,26 @@ export const useMutationVM = () => {
     }
   };
 
-const handleDownloadAll = async () => {
-  try {
-    setIsLoading(true);
+  const handleDownloadAll = async () => {
+    try {
+      setIsLoading(true);
 
-    // const params = buildFilterParams(filtersValue);
+      // const params = buildFilterParams(filtersValue);
 
-    // const res = await api.get("/mutasi", {
-    //   params: {
-    //     ...params,
-    //     export: true,
-    //   },
-    // });
+      // const res = await api.get("/mutasi", {
+      //   params: {
+      //     ...params,
+      //     export: true,
+      //   },
+      // });
 
-    // downloadCSVFromRawData(res.data, "mutasi");
-  } catch (error: any) {
+      // downloadCSVFromRawData(res.data, "mutasi");
+    } catch (error: any) {
       showToast(error.message, "ERROR");
     } finally {
-    setIsLoading(false);
-  }
-};
+      setIsLoading(false);
+    }
+  };
 
   return {
     mutations,
@@ -221,7 +225,7 @@ const handleDownloadAll = async () => {
     isFiltering,
     totalItems,
 
-handleDownloadAll,
+    handleDownloadAll,
     handleFilterChange,
     handleReset,
     onSubmit,

@@ -22,7 +22,7 @@ export default function Layout({ children }: LayoutProps) {
     return (
       <div className="flex flex-col min-h-screen h-full bg-neutral-gray4">
         <Header />
-        <div className="py-4 md:pt-18 md:px-52 md:py-6 w-full">{children}</div>
+        <div className="py-4 md:pt-18 md:px-18 lg:px-52 md:py-6 w-full">{children}</div>
       </div>
     );
   }

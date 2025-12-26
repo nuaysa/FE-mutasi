@@ -29,25 +29,22 @@ export default function Header() {
     {
       name: "Mutasi",
       href: "/",
-      // Exact match untuk home page
       isActive: pathname === "/",
     },
     {
       name: "Lap. Santri",
       href: "/santri",
-      // Active jika pathname dimulai dengan /santri
       isActive: pathname?.startsWith("/santri"),
     },
     {
       name: "Pengaturan",
       href: "/pengaturan",
-      // Active jika pathname dimulai dengan /pengaturan
       isActive: pathname?.startsWith("/pengaturan"),
     },
   ];
 
   return (
-    <header className="w-full fixed top-0 flex items-center justify-between bg-neutral-white border-b px-8 md:px-16 lg:px-24 xl:px-52 h-15">
+    <header className="w-full fixed top-0 flex items-center justify-between bg-neutral-white border-b px-8 md:px-16 lg:px-24 xl:px-52 h-15 z-40">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex cursor-pointer items-center mx-4">
           <Image src="/assets/logo.png" alt="Logo" width={40} height={40} priority />

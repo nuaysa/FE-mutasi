@@ -104,3 +104,21 @@ export const formatFilterDate = (dateString?: Date | string) => {
 
   return `${day} ${month} ${year}`;
 };
+
+export function mapToOptionsByKey<T>(
+  data: T[] = [],
+  key: keyof T
+) {
+  return data
+    .map((item) => {
+      const value = item[key];
+      if (!value) return null;
+
+      return {
+        value: String(value),
+        label: String(value),
+      };
+    })
+    .filter(Boolean) as { value: string; label: string }[];
+}
+

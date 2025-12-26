@@ -61,7 +61,7 @@ export default function BaseModal({
   }
 
   return (
-    <div className="fixed inset-0 z-30 flex items-center justify-end">
+    <div className="fixed inset-0 z-50 flex items-center justify-end">
       <button
         type="button"
         aria-label="Close modal"

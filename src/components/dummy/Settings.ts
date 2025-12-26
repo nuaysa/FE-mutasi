@@ -1,11 +1,13 @@
 import { Setting } from "@/app/pengaturan/model";
 
 export const dummyCategories: Setting[] = [
-  { id: "cat-1", name: "Makan Santri" },
-  { id: "cat-2", name: "Kitab & Alat Tulis" },
-  { id: "cat-3", name: "Kegiatan Pesantren" },
-  { id: "cat-4", name: "Operasional Harian" },
-  { id: "cat-5", name: "Kesehatan" },
+  { id: "cat-1", name: "Infaq bangunan" },
+  { id: "cat-2", name: "Infaq bulanan" },
+  { id: "cat-3", name: "Biaya eskul" },
+  { id: "cat-4", name: "Biaya akhir semester" },
+  { id: "cat-5", name: "Deposit" },
+  { id: "cat-6", name: "Donasi" },
+  { id: "cat-7", name: "Piutang / tunggakan" },
 ];
 
 export const dummyVendors: Setting[] = [

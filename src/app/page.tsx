@@ -24,7 +24,7 @@ export default function home() {
   const isMobile = useIsMobile();
   return (
     <>
-      <div className="mx-2 md:px-0 flex flex-col lg:flex-row gap-3 lg:gap-0 justify-center items-center lg:justify-between mb-6">
+      <div className="mx-2 md:px-0 flex flex-col md:flex-row gap-3 lg:gap-0 justify-center items-center md:justify-between mb-6">
         <h1 className="text-2xl text-neutral-black font-bold">Mutasi Keuangan</h1>
         <div className={`${isMobile ? "hidden" : "flex"} gap-3`}>
           <Button
@@ -40,6 +40,7 @@ export default function home() {
             icon={<MinusCircle />}
             variant="DANGER"
             onClick={() => {
+              console.log(vm.mode)
               vm.setMode("outcome");
               vm.setIsCreateModalOpen(true);
             }}

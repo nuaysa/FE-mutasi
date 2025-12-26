@@ -1,12 +1,13 @@
 import type { Field } from "@/components/commons/Form/Form";
 import type { Column } from "@/components/commons/Table/Table";
 import type { Mutation } from "../model";
-import { formatDate, formatPriceDisplay } from "@/utils/helpers";
+import { formatDate, formatPriceDisplay, mapToOptionsByKey } from "@/utils/helpers";
 import { MutationFormValue } from "./MutationSchema";
 import ActionButton from "@/components/commons/ActionButton";
+import { dummyCategories, dummyVendors } from "@/components/dummy/Settings";
+import { dummySantri } from "@/components/dummy/Santri";
 
-export const getMutationColumns = (
-): Column<Mutation>[] => [
+export const getMutationColumns = (): Column<Mutation>[] => [
   {
     header: "Tanggal",
     accessor: "date",
@@ -35,12 +36,9 @@ export const getMutationColumns = (
     render: (row: Mutation) => (
       <ActionButton
         variant="PRIMARY"
-        onPrint={
-           () => {
-                // vm.setIsDeleteModalOpen(true);
-              }
-              
-        }
+        onPrint={() => {
+          // vm.setIsDeleteModalOpen(true);
+        }}
       />
     ),
   },
@@ -51,7 +49,7 @@ export const sharedFields: Field<MutationFormValue>[] = [
     name: "date",
     label: "Tanggal",
     type: "date",
-    dateType : "single",
+    dateType: "single",
     required: true,
     placeholder: "Masukkan Tanggal Mutasi",
   },
@@ -78,12 +76,14 @@ export const incomeFields: Field<MutationFormValue>[] = [
     type: "select",
     placeholder: "Pilih Sumber Pemasukan",
     required: true,
+    options: mapToOptionsByKey(dummyCategories, "name"),
   },
-    {
+  {
     name: "information",
     label: "Pilih Santri (Opsional)",
-    type: "text",
+    type: "select",
     placeholder: "Pilih Santri (Opsional)",
+    options: mapToOptionsByKey(dummySantri, "name"),
   },
 ];
 
@@ -94,12 +94,13 @@ export const outcomeFields: Field<MutationFormValue>[] = [
     type: "select",
     placeholder: "Masukkan Kategori Rutin / Tahunan",
     required: true,
+    options: mapToOptionsByKey(dummyCategories, "name"),
   },
   {
     name: "information",
     label: "Vendor / Penerima",
-    type: "text",
+    type: "select",
     placeholder: "Masukkan Nama vendor / Penerima",
-    required: true,
+    options: mapToOptionsByKey(dummyVendors, "name"),
   },
 ];

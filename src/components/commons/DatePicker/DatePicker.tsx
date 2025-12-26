@@ -9,6 +9,7 @@ import "react-date-range/dist/theme/default.css";
 import { cn, formatDate, formatFilterDate } from "@/utils/helpers";
 import Button from "../Button";
 import { ChevronDown, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface CustomDatePickerProps {
   placeholder: string;
@@ -150,6 +151,107 @@ export default function CustomDatePicker(props: CustomDatePickerProps) {
   };
 
   const disabledApply = mode === "range" ? !tempStart || !tempEnd : !tempStart;
+  const isMobile = useIsMobile();
+
+  function renderMobilePicker() {
+  return (
+    <div className="fixed inset-0 z-9999 bg-black/40 flex items-end">
+      <div
+        ref={modalRef}
+        className="bg-white w-full rounded-t-2xl p-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex justify-end text-black items-center">
+          <button onClick={() => setIsOpen(false)}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {mode === "range" ? (
+          <DateRange
+            ranges={[selectionRange]}
+            onChange={handleCalendarSelect}
+            months={1}
+            direction="vertical"
+            moveRangeOnFirstSelection={false}
+            maxDate={isFutureDisabled ? new Date() : undefined}
+            rangeColors={["#3b82f6"]}
+          />
+        ) : (
+          <Calendar
+            date={tempStart || new Date()}
+            onChange={(d: Date) => setTempStart(d)}
+            maxDate={isFutureDisabled ? new Date() : undefined}
+          />
+        )}
+
+        <div className="flex gap-2 mt-4">
+          <Button
+            text="Batal"
+            variant="PLAIN"
+            size="SMALL"
+            onClick={() => setIsOpen(false)}
+            className="flex-1"
+          />
+          <Button
+            text="Simpan"
+            variant="PRIMARY"
+            size="SMALL"
+            onClick={handleSave}
+            disabled={disabledApply}
+            className="flex-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function renderDesktopPicker() {
+  return (
+    <div
+      ref={modalRef}
+      style={{ position: "absolute", ...position, zIndex: 9999 }}
+      className="bg-white rounded-lg p-4 w-max shadow-lg border border-neutral-gray2"
+    >
+
+        {mode === "range" ? (
+          <DateRange
+            ranges={[selectionRange]}
+            onChange={handleCalendarSelect}
+            months={1}
+            direction="vertical"
+            moveRangeOnFirstSelection={false}
+            maxDate={isFutureDisabled ? new Date() : undefined}
+            rangeColors={["#3b82f6"]}
+          />
+        ) : (
+          <Calendar
+            date={tempStart || new Date()}
+            onChange={(d: Date) => setTempStart(d)}
+            maxDate={isFutureDisabled ? new Date() : undefined}
+          />
+        )}
+
+        <div className="flex gap-2 mt-4">
+          <Button
+            text="Batal"
+            variant="PLAIN"
+            size="SMALL"
+            onClick={() => setIsOpen(false)}
+            className="flex-1"
+          />
+          <Button
+            text="Simpan"
+            variant="PRIMARY"
+            size="SMALL"
+            onClick={handleSave}
+            disabled={disabledApply}
+            className="flex-1"
+          />
+        </div>
+    </div>
+  );
+}
 
   return (
     <>
@@ -174,36 +276,20 @@ export default function CustomDatePicker(props: CustomDatePickerProps) {
               }}
               className="cursor-pointer"
             >
-              <X size={15}/>
+              <X size={15} />
             </button>
           ) : (
-            <div className="pointer-events-none">{icon || <ChevronDown  size={15}/>}</div>
+            <div className="pointer-events-none">{icon || <ChevronDown size={15} />}</div>
           )}
         </div>
       </div>
 
-      {isOpen &&
-        createPortal(
-          <div ref={modalRef} style={{ position: "absolute", ...position, zIndex: 9999 }} className="bg-white rounded-lg p-6 w-max max-h-[80vh] shadow-lg border border-neutral-gray2">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1">
-                {mode === "range" ? (
-                  <DateRange ranges={[selectionRange]} onChange={handleCalendarSelect} moveRangeOnFirstSelection={false} months={1} direction="horizontal" maxDate={isFutureDisabled ? new Date() : undefined} rangeColors={["#3b82f6"]} />
-                ) : (
-                  <Calendar date={tempStart || new Date()} onChange={(d: Date) => setTempStart(d)} maxDate={isFutureDisabled ? new Date() : undefined} />
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-2">
-              <div className="flex gap-2">
-                <Button text="Batal" variant="PLAIN" size="SMALL" onClick={() => setIsOpen(false)} className="min-w-25" />
-                <Button text="Simpan" variant="PRIMARY" size="SMALL" onClick={handleSave} disabled={disabledApply} className="min-w-25" />
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+  {isOpen &&
+  createPortal(
+    isMobile ? renderMobilePicker() : renderDesktopPicker(),
+    document.body
+  )}
     </>
   );
 }
+
