@@ -19,6 +19,19 @@
   }
 }
 
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -39,7 +52,7 @@ body {
   --color-semantic-red2: #fdeaea;
   --color-semantic-green1: #027a48;
   --color-semantic-green2: #038c56;
-  --color-semantic-green1: #d1fadf;
+  --color-semantic-green3: #d1fadf;
   --color-semantic-yellow1: #a37b00;
   --color-semantic-yellow2: #ba8b00;
   --color-semantic-yellow3: #fff8e1;
