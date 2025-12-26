@@ -23,6 +23,7 @@ export default function SantriCreateModal({ isOpen, onClose, vm }: IncomeModalPr
       reset({
         name: currentSantri.name,
         class : currentSantri.class,
+        status : currentSantri.status,
         generation : currentSantri.generation,
       });
     }
@@ -30,6 +31,7 @@ export default function SantriCreateModal({ isOpen, onClose, vm }: IncomeModalPr
       reset({
         name: "",
         class: "",
+        status: "",
         generation: undefined
       });
     }

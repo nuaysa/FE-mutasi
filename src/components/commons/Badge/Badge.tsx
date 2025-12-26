@@ -9,7 +9,7 @@ interface BadgeProps {
 }
 
 const badgeVariants = cva(
-  "flex items-center justify-center rounded-full text-xs transition-colors px-2 py-1.5",
+  "flex items-center justify-center rounded-full text-xs transition-colors px-2 py-0.5",
   {
     variants: {
       variant: {
@@ -20,7 +20,7 @@ const badgeVariants = cva(
           "bg-semantic-green3 text-semantic-green2",
         WARNING:
           "bg-semantic-yellow3  text-semantic-yellow2",
-        DANGER: "bg-semantic-red21 text-semantic-red1",
+        DANGER: "bg-semantic-red2 text-semantic-red1",
       },
     },
     defaultVariants: {

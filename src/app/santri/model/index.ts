@@ -2,6 +2,7 @@ export interface Santri {
   id?: string;
   name: string
   class : string
+  status : string
   generation : number 
   deposit?: number
   debt?: debt[] 

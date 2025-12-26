@@ -10,6 +10,13 @@ export const santriFields: Field<SantriFormValue>[] = [
     placeholder: "Masukkan Nama Santri",
   },
   {
+    name: "status",
+    label: "Status",
+    type: "select",
+    placeholder: "Pilih Status Santri",
+    required: true,
+  },
+  {
     name: "class",
     label: "Kelas",
     type: "text",

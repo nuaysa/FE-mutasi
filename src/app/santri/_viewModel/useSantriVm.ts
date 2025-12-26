@@ -154,6 +154,7 @@ export const useSantriVM = () => {
       const payload: Santri = {
         name: data.name,
         class: data.class,
+        status: data.status,
         generation: data.generation,
     };
 

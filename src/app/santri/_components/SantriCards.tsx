@@ -2,6 +2,7 @@ import Card from "@/components/commons/Card";
 import { useSantriVM } from "../_viewModel/useSantriVm";
 import { formatPriceDisplay } from "@/utils/helpers";
 import ActionButton from "@/components/commons/ActionButton";
+import { renderStatus } from "@/components/commons/Badge/Badge";
 
 interface SantriCardsProps {
   vm: ReturnType<typeof useSantriVM>;
@@ -32,46 +33,46 @@ export default function SantriCards({ vm }: SantriCardsProps) {
         <Card key={santri.id} className="hover:border-2 hover:border-primary-main hover:shadow-primary-hover">
           <div className="flex justify-between items-start gap-2 border-b border-neutral-gray2 pb-3">
             <span className="flex gap-2">
+              <div className="bg-neutral-gray2 rounded-full h-10 w-10 text-primary-main font-bold flex items-center justify-center">{santri.name.charAt(0).toUpperCase()}</div>
 
-            <div className="bg-neutral-gray2 rounded-full h-10 w-10 text-primary-main font-bold flex items-center justify-center">{santri.name.charAt(0).toUpperCase()}</div>
+              <span className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <p className="text-black font-bold text-md">{santri.name}</p>
+                  {renderStatus(santri.status)}
+                </div>
 
-            <span className="flex flex-col">
-              <p className="text-black font-bold text-md">{santri.name}</p>
-              <p className="text-neutral-gray1 text-sm">
-                {santri.class} ・ ANGKATAN {santri.generation}
-              </p>
-            </span>
+                <p className="text-neutral-gray1 text-sm">
+                  {santri.class} ・ ANGKATAN {santri.generation}
+                </p>
+              </span>
             </span>
             <ActionButton
-            onView={() => vm.handleView(santri)}
-            onEdit={() => {
-                vm.setMode("edit")
-                vm.setIsCreateModalOpen(true)
-                }}/>
+              onView={() => vm.handleView(santri)}
+              onEdit={() => {
+                vm.setMode("edit");
+                vm.setIsCreateModalOpen(true);
+              }}
+            />
           </div>
 
           <div className="w-full flex gap-2 justify-between items-center pt-4">
             <div className="flex flex-col gap-1 items-center w-1/2">
               <p className="text-sm text-neutral-gray1">Saldo</p>
               <p className="text-md font-extrabold text-semantic-green1">
-                {
-                  formatPriceDisplay({
-                    amount: santri.deposit ?? 0,
-                    type: "income",
-                  })
-                }
+                {formatPriceDisplay({
+                  amount: santri.deposit ?? 0,
+                  type: "income",
+                })}
               </p>
             </div>
 
             <div className="flex flex-col gap-1 items-center w-1/2">
               <p className="text-sm text-neutral-gray1">Hutang</p>
               <p className="text-md font-extrabold text-semantic-red1">
-                {
-                  formatPriceDisplay({
-                    amount: santri.total ?? 0,
-                    type: "outcome",
-                  })
-                }
+                {formatPriceDisplay({
+                  amount: santri.total ?? 0,
+                  type: "outcome",
+                })}
               </p>
             </div>
           </div>

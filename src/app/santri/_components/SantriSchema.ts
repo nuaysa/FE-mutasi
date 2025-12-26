@@ -5,6 +5,7 @@ import * as yup from "yup";
 export const santriSchema = yup.object({
   name: yup.string().required("wajib diisi").defined(),
   class: yup.string().required("wajib diisi").defined(),
+  status: yup.string().required("wajib diisi").defined(),
   generation: yup.number().required("wajib diisi"),
 });
 
@@ -16,6 +17,7 @@ export const usesantriForm = () => {
     defaultValues: {
       name: "",
       class: "",
+      status: "",
       generation: undefined,
     },
     mode: "onSubmit",
