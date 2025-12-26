@@ -1,28 +1,28 @@
 export const statusMap: Record<
   string,
-  { label: string; variant: "PRIMARY" | "SECONDARY" | "SUCCESS" | "WARNING" | "DANGER" }
+  {
+    label: string;
+    variant: "PRIMARY" | "SECONDARY" | "SUCCESS" | "WARNING" | "DANGER";
+  }
 > = {
-  ACTIVE: {
+  active: {
     label: "Aktif",
     variant: "SUCCESS",
   },
-  INACTIVE: {
-    label: "Tidak Aktif",
+  inactive: {
+    label: "Cuti",
     variant: "WARNING",
   },
-  ALUMNI: {
-    label: "Alumni",
+  graduated: {
+    label: "Lulus",
     variant: "PRIMARY",
   },
-  DROPPED: {
+  stopped: {
     label: "Keluar",
     variant: "DANGER",
   },
-  MUTATION: {
-    label: "Pindah",
-    variant: "SECONDARY",
-  },
 };
+
 
 export const ALIGN_CLASS = {
   left: "text-left justify-start",

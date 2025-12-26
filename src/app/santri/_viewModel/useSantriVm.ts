@@ -54,7 +54,9 @@ export const useSantriVM = () => {
         type: "select" as const,
       options: [
         { value: "active", label: "Aktif" },
-        { value: "incative", label: "Tidak Aktif" },
+        { value: "incative", label: "Cuti" },
+        { value: "graduated", label: "Lulus" },
+        { value: "stopped", label: "Keluar" },
       ],
       placeholder: "Pilih Status",
     },

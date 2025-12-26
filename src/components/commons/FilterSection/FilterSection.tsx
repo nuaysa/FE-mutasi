@@ -84,7 +84,7 @@ function FilterFieldRenderer({ filter, value, label, onChange, className = "" }:
   const inputValue = typeof value === "string" ? value : "";
 
   return (
-    <div className="relative flex flex-col gap-2 flex-1">
+    <div className="relative flex flex-col flex-1">
       <p className="font-bold text-neutral-gray1">{label}</p>
 
       <div className="relative">
