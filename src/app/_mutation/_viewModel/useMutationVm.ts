@@ -64,14 +64,14 @@ export const useMutationVM = () => {
     },
     {
       key: "category",
-      label: "category",
+      label: "Kategori",
       type: "select" as const,
       placeholder: "Kategori",
          options: mapToOptionsByKey(dummyCategories, "name"),
     },
     {
       key: "information",
-      label: "information",
+      label: "Vendor/Pihak Ke-3",
       type: "select" as const,
       placeholder: "Vendor/Pihak Ke-3",
       options: mapToOptionsByKey(dummyVendors, "name"),
@@ -96,6 +96,10 @@ export const useMutationVM = () => {
 
     if (filters.type && filters.type !== "") {
       params.type = filters.type as string;
+    }
+
+    if (filters.category && filters.category !== "") {
+      params.category = filters.category as string;
     }
 
     if (filters.date && filters.date !== "") {

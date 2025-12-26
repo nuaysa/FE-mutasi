@@ -75,7 +75,10 @@ export const useSantriVM = () => {
     };
 
     if (filters.search && filters.search !== "") {
-      params.search = filters.vendor as string;
+      params.search = filters.search as string;
+    }
+    if (filters.status && filters.status !== "") {
+      params.status = filters.status as string;
     }
 
     return params;

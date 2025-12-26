@@ -4,11 +4,13 @@ export interface GetAllmutationsParams {
   date?: string;
   type?: string;
   information?: string; // vendor / santri
+  category?: string; 
 }
 export interface GetAllsantrisParams {
   page?: number;
   size?: number;
   search?: string;
+  status?: string;
 }
 
 export type LoginParams = {
