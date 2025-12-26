@@ -84,7 +84,7 @@ export const useMutationVM = () => {
 
   const debouncedFilters = useDebounce(filterValues, 500);
 
-  const buildApiParams = useCallback((filters: Record<string, string | string[]>, page: number, size: number, sort: SortConfig | null): GetAllmutationsParams => {
+  const buildApiParams = useCallback((filters: Record<string, string | string[]>, page: number, size: number): GetAllmutationsParams => {
     const params: GetAllmutationsParams = {
       page,
       size,
@@ -113,7 +113,7 @@ export const useMutationVM = () => {
     async (params?: GetAllmutationsParams) => {
       setIsLoading(true);
       try {
-        const apiParams = params || buildApiParams(debouncedFilters, currentPage, pageSize, sortConfig);
+        const apiParams = params || buildApiParams(debouncedFilters, currentPage, pageSize);
 
         // const response = await getAllmutations(apiParams);
 
@@ -125,11 +125,11 @@ export const useMutationVM = () => {
         setIsLoading(false);
       }
     },
-    [buildApiParams, currentPage, pageSize, sortConfig, showToast, debouncedFilters]
+    [buildApiParams, currentPage, pageSize, showToast, debouncedFilters]
   );
 
   useEffect(() => {
-    const params = buildApiParams(debouncedFilters, currentPage, pageSize, sortConfig);
+    const params = buildApiParams(debouncedFilters, currentPage, pageSize);
     fetchmutations(params);
   }, [debouncedFilters, currentPage, pageSize, sortConfig, fetchmutations, buildApiParams]);
 

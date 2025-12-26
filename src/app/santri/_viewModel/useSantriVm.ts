@@ -68,7 +68,7 @@ export const useSantriVM = () => {
 
   const debouncedFilters = useDebounce(filterValues, 500);
 
-  const buildApiParams = useCallback((filters: Record<string, string | string[]>, page: number, size: number, sort: SortConfig | null): GetAllsantrisParams => {
+  const buildApiParams = useCallback((filters: Record<string, string | string[]>, page: number, size: number): GetAllsantrisParams => {
     const params: GetAllsantrisParams = {
       page,
       size,
