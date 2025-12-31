@@ -94,7 +94,7 @@ if (userProfile?.role === "admin") {
                 {profile}
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-medium">{userProfile?.name}</p>
+                <p className="text-sm text-neutral-black font-medium">{userProfile?.name}</p>
                 <p className="text-xs text-neutral-gray1">{userProfile?.role}</p>
               </div>
             </div>
@@ -107,7 +107,7 @@ if (userProfile?.role === "admin") {
                   {profile ?? "A"}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{userProfile?.name}</p>
+                  <p className="text-sm text-black font-semibold">{userProfile?.name}</p>
                   <p className="text-xs text-neutral-gray1">Admin</p>
                 </div>
               </div>

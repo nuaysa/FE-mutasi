@@ -6,7 +6,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { Santri } from "../model";
 import { GetAllsantrisParams } from "@/api/types/types";
 import { usesantriForm } from "../_components/SantriSchema";
-import { createStudent, getAllStudents, getStudentById } from "@/api/santri";
+import { createStudent, editStudent, getAllStudents, getStudentById } from "@/api/santri";
 import { getSantriPdf } from "@/api/pdf";
 import { downloadPdf } from "@/utils/helpers";
 
@@ -156,13 +156,16 @@ export const useSantriVM = () => {
         status: data.status,
         generation: data.generation,
       };
-
-      await createStudent(payload);
-
+      if (mode === "create") {
+        await createStudent(payload);
+        showToast("Santri berhasil ditambahkan!", "SUCCESS");
+      } else if (mode === "edit" && currentSantri?.id){
+        await editStudent({id: currentSantri?.id , data: payload})
+        showToast("Santri berhasil diubah!", "SUCCESS");
+      }
       setIsCreateModalOpen(false);
-      santriForm.reset(); // Reset form setelah submit
-      showToast("Santri berhasil ditambahkan!", "SUCCESS");
-      fetchSantris(); // Refresh list
+      santriForm.reset();
+      fetchSantris();
     } catch (error: any) {
       showToast(error.message, "ERROR");
     } finally {

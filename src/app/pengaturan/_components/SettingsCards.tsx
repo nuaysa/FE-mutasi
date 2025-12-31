@@ -55,7 +55,7 @@ export default function SettingsCards({ vm }: SettingsCardsProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="h-90 lg:h-105">
+      <div className="h-90 lg:h-162.5">
         <CardList
           title="Master Kategori"
           items={categoryItems}
@@ -67,7 +67,7 @@ export default function SettingsCards({ vm }: SettingsCardsProps) {
         />
       </div>
 
-      <div className="h-90 lg:h-105">
+      <div className="h-90 lg:h-162.5">
         <CardList
           title="Master Vendor"
           items={vendorItems}

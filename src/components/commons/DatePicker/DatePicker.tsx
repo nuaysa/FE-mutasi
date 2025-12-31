@@ -97,17 +97,33 @@ export default function CustomDatePicker(props: CustomDatePickerProps) {
     if (!isOpen || !inputRef.current || typeof window === "undefined") return;
 
     const rect = inputRef.current.getBoundingClientRect();
-    const modalWidth = 700;
+const modalWidth = 700;
+const modalHeight = mode === "range" ? 420 : 340;
 
-    const top = rect.bottom + window.scrollY + 4;
-    let left = rect.left + window.scrollX;
+const scrollY = window.scrollY;
+const scrollX = window.scrollX;
+const viewportHeight = window.innerHeight;
 
-    if (left + modalWidth > window.innerWidth + window.scrollX) {
-      left = window.innerWidth + window.scrollX - modalWidth - 10;
-    }
-    if (left < window.scrollX) left = window.scrollX + 10;
+const spaceBelow = viewportHeight - rect.bottom;
+const spaceAbove = rect.top;
 
-    setPosition({ top, left });
+let top: number;
+
+if (spaceBelow < modalHeight && spaceAbove > modalHeight) {
+  top = rect.top + scrollY - modalHeight - 4;
+} else {
+  top = rect.bottom + scrollY + 4;
+}
+
+let left = rect.left + scrollX;
+
+if (left + modalWidth > window.innerWidth + scrollX) {
+  left = window.innerWidth + scrollX - modalWidth - 10;
+}
+if (left < scrollX) left = scrollX + 10;
+
+setPosition({ top, left });
+
 
     const handleOutside = (event: MouseEvent) => {
       if (modalRef.current?.contains(event.target as Node) || inputRef.current?.contains(event.target as Node)) return;

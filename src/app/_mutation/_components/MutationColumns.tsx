@@ -49,18 +49,17 @@ export const getMutationColumns = (vm: ReturnType<typeof useMutationVM>): Column
 
 export const sharedFields: Field<MutationFormValue>[] = [
   {
+    name: "purpose",
+    label: "Tujuan Mutasi",
+    type: "select",
+    placeholder: "Pilih Tujuan Mutasi",
+    required: true,
+  },
+  {
     name: "santriId",
     label: "Pilih Santri (Opsional)",
     type: "select",
     placeholder: "Pilih Santri (Opsional)",
-  },
-  {
-    name: "date",
-    label: "Tanggal",
-    type: "date",
-    dateType: "single",
-    required: true,
-    placeholder: "Masukkan Tanggal Mutasi",
   },
   {
     name: "amount",
@@ -70,11 +69,12 @@ export const sharedFields: Field<MutationFormValue>[] = [
     required: true,
   },
   {
-    name: "purpose",
-    label: "Tujuan Mutasi",
-    type: "select",
-    placeholder: "Pilih Tujuan Mutasi",
+    name: "date",
+    label: "Tanggal",
+    type: "date",
+    dateType: "single",
     required: true,
+    placeholder: "Masukkan Tanggal Mutasi",
   },
   {
     name: "description",

@@ -23,18 +23,7 @@ export const mutationSchema = yup.object().shape({
 
   categoryId: yup.string().required("Kategori wajib diisi"),
 
-  santriId: yup
-    .string()
-    .nullable()
-    .optional()
-    .when("purpose", {
-      is: (p: any) => {
-        const purpose = p as MutationFormValue["purpose"];
-        return ["deposit_topup", "deposit_withdrawal", "debt_created", "debt_payment"].includes(purpose);
-      },
-      then: (schema) => schema.required("Santri wajib dipilih") as yup.StringSchema,
-    }),
-
+  santriId: yup.string().nullable().optional(),
   debtId: yup
     .string()
     .nullable()
