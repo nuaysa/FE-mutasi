@@ -221,6 +221,7 @@ export default function DynamicForm<T extends FieldValues>({ fields, form, layou
                   }}
                   render={({ field: controllerField }) => (
                     <CustomDatePicker
+                    defaultToday={ true}
                       isFutureDisabled={false}
                       placeholder={field.placeholder || "Choose Date"}
                       className={cn(inputBase({ state: errorState }), "pr-10 truncate")}

@@ -18,14 +18,23 @@ interface CustomDatePickerProps {
   mode?: "single" | "range";
   value?: string;
   isFutureDisabled?: boolean;
+  defaultToday?: boolean; // <-- Tambah prop ini
   onChange?: (value: { start?: string | null; end?: string | null }) => void;
 }
 
-function useDateState(value: string | undefined) {
+function useDateState(value: string | undefined, defaultToday: boolean = false) {
   const [savedStart, setSavedStart] = useState<Date | null>(null);
   const [savedEnd, setSavedEnd] = useState<Date | null>(null);
 
   useEffect(() => {
+    if (defaultToday && !value) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setSavedStart(today);
+ 
+      return;
+    }
+
     if (!value) {
       setSavedStart(null);
       setSavedEnd(null);
@@ -46,13 +55,12 @@ function useDateState(value: string | undefined) {
       const d = new Date(value);
       if (!Number.isNaN(d.getTime())) setSavedStart(d);
     }
-  }, [value]);
+  }, [value, defaultToday]);
 
   const buildValue = (date: Date | null) => {
     if (!date) return null;
 
     const d = new Date(date);
-
     return d;
   };
 
@@ -73,9 +81,18 @@ function useDisplayValue(mode: "single" | "range", savedStart: Date | null, save
 }
 
 export default function CustomDatePicker(props: CustomDatePickerProps) {
-  const { placeholder, className, icon, mode = "single", onChange, value, isFutureDisabled = false } = props;
+  const { 
+    placeholder, 
+    className, 
+    icon, 
+    mode = "single", 
+    onChange, 
+    value, 
+    isFutureDisabled = false,
+    defaultToday = false // <-- Default false agar tidak breaking change
+  } = props;
 
-  const { savedStart, savedEnd, setSavedStart, setSavedEnd, buildValue } = useDateState(value);
+  const { savedStart, savedEnd, setSavedStart, setSavedEnd, buildValue } = useDateState(value, defaultToday);
 
   const [tempStart, setTempStart] = useState<Date | null>(null);
   const [tempEnd, setTempEnd] = useState<Date | null>(null);
@@ -88,42 +105,41 @@ export default function CustomDatePicker(props: CustomDatePickerProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setTempStart(savedStart);
-      setTempEnd(savedEnd);
+      setTempStart(savedStart || (defaultToday ? new Date() : null));
+      setTempEnd(savedEnd || (defaultToday && mode === "range" ? new Date() : null));
     }
-  }, [isOpen, savedStart, savedEnd]);
+  }, [isOpen, savedStart, savedEnd, defaultToday, mode]);
 
   useLayoutEffect(() => {
     if (!isOpen || !inputRef.current || typeof window === "undefined") return;
 
     const rect = inputRef.current.getBoundingClientRect();
-const modalWidth = 700;
-const modalHeight = mode === "range" ? 420 : 340;
+    const modalWidth = 700;
+    const modalHeight = mode === "range" ? 420 : 340;
 
-const scrollY = window.scrollY;
-const scrollX = window.scrollX;
-const viewportHeight = window.innerHeight;
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+    const viewportHeight = window.innerHeight;
 
-const spaceBelow = viewportHeight - rect.bottom;
-const spaceAbove = rect.top;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
 
-let top: number;
+    let top: number;
 
-if (spaceBelow < modalHeight && spaceAbove > modalHeight) {
-  top = rect.top + scrollY - modalHeight - 4;
-} else {
-  top = rect.bottom + scrollY + 4;
-}
+    if (spaceBelow < modalHeight && spaceAbove > modalHeight) {
+      top = rect.top + scrollY - modalHeight - 4;
+    } else {
+      top = rect.bottom + scrollY + 4;
+    }
 
-let left = rect.left + scrollX;
+    let left = rect.left + scrollX;
 
-if (left + modalWidth > window.innerWidth + scrollX) {
-  left = window.innerWidth + scrollX - modalWidth - 10;
-}
-if (left < scrollX) left = scrollX + 10;
+    if (left + modalWidth > window.innerWidth + scrollX) {
+      left = window.innerWidth + scrollX - modalWidth - 10;
+    }
+    if (left < scrollX) left = scrollX + 10;
 
-setPosition({ top, left });
-
+    setPosition({ top, left });
 
     const handleOutside = (event: MouseEvent) => {
       if (modalRef.current?.contains(event.target as Node) || inputRef.current?.contains(event.target as Node)) return;
@@ -161,8 +177,8 @@ setPosition({ top, left });
   };
 
   const selectionRange = {
-    startDate: tempStart || new Date(),
-    endDate: tempEnd || tempStart || new Date(),
+    startDate: tempStart || (defaultToday ? new Date() : new Date()),
+    endDate: tempEnd || tempStart || (defaultToday ? new Date() : new Date()),
     key: "selection",
   };
 
@@ -170,18 +186,65 @@ setPosition({ top, left });
   const isMobile = useIsMobile();
 
   function renderMobilePicker() {
-  return (
-    <div className="fixed inset-0 z-9999 bg-black/40 flex items-end">
+    return (
+      <div className="fixed inset-0 z-9999 bg-black/40 flex items-end">
+        <div
+          ref={modalRef}
+          className="bg-white w-full rounded-t-2xl p-4 max-h-[90vh] overflow-y-auto"
+        >
+          <div className="flex justify-end text-black items-center">
+            <button onClick={() => setIsOpen(false)}>
+              <X size={18} />
+            </button>
+          </div>
+
+          {mode === "range" ? (
+            <DateRange
+              ranges={[selectionRange]}
+              onChange={handleCalendarSelect}
+              months={1}
+              direction="vertical"
+              moveRangeOnFirstSelection={false}
+              maxDate={isFutureDisabled ? new Date() : undefined}
+              rangeColors={["#3b82f6"]}
+            />
+          ) : (
+            <Calendar
+              date={tempStart || (defaultToday ? new Date() : new Date())}
+              onChange={(d: Date) => setTempStart(d)}
+              maxDate={isFutureDisabled ? new Date() : undefined}
+            />
+          )}
+
+          <div className="flex gap-2 mt-4">
+            <Button
+              text="Batal"
+              variant="PLAIN"
+              size="SMALL"
+              onClick={() => setIsOpen(false)}
+              className="flex-1"
+            />
+            <Button
+              text="Simpan"
+              variant="PRIMARY"
+              size="SMALL"
+              onClick={handleSave}
+              disabled={disabledApply}
+              className="flex-1"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderDesktopPicker() {
+    return (
       <div
         ref={modalRef}
-        className="bg-white w-full rounded-t-2xl p-4 max-h-[90vh] overflow-y-auto"
+        style={{ position: "absolute", ...position, zIndex: 9999 }}
+        className="bg-white rounded-lg p-4 w-max shadow-lg border border-neutral-gray2"
       >
-        <div className="flex justify-end text-black items-center">
-          <button onClick={() => setIsOpen(false)}>
-            <X size={18} />
-          </button>
-        </div>
-
         {mode === "range" ? (
           <DateRange
             ranges={[selectionRange]}
@@ -194,7 +257,7 @@ setPosition({ top, left });
           />
         ) : (
           <Calendar
-            date={tempStart || new Date()}
+            date={tempStart || (defaultToday ? new Date() : new Date())}
             onChange={(d: Date) => setTempStart(d)}
             maxDate={isFutureDisabled ? new Date() : undefined}
           />
@@ -218,56 +281,18 @@ setPosition({ top, left });
           />
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-function renderDesktopPicker() {
-  return (
-    <div
-      ref={modalRef}
-      style={{ position: "absolute", ...position, zIndex: 9999 }}
-      className="bg-white rounded-lg p-4 w-max shadow-lg border border-neutral-gray2"
-    >
-
-        {mode === "range" ? (
-          <DateRange
-            ranges={[selectionRange]}
-            onChange={handleCalendarSelect}
-            months={1}
-            direction="vertical"
-            moveRangeOnFirstSelection={false}
-            maxDate={isFutureDisabled ? new Date() : undefined}
-            rangeColors={["#3b82f6"]}
-          />
-        ) : (
-          <Calendar
-            date={tempStart || new Date()}
-            onChange={(d: Date) => setTempStart(d)}
-            maxDate={isFutureDisabled ? new Date() : undefined}
-          />
-        )}
-
-        <div className="flex gap-2 mt-4">
-          <Button
-            text="Batal"
-            variant="PLAIN"
-            size="SMALL"
-            onClick={() => setIsOpen(false)}
-            className="flex-1"
-          />
-          <Button
-            text="Simpan"
-            variant="PRIMARY"
-            size="SMALL"
-            onClick={handleSave}
-            disabled={disabledApply}
-            className="flex-1"
-          />
-        </div>
-    </div>
-  );
-}
+  // Kirim onChange saat pertama kali mount jika defaultToday true
+  useEffect(() => {
+    if (defaultToday && savedStart && !value && onChange) {
+      onChange({
+        start: formatDateTime(savedStart, true),
+        end: mode === "range" ? formatDateTime(savedEnd, true) : null,
+      });
+    }
+  }, [defaultToday, savedStart, savedEnd, mode, onChange, value]);
 
   return (
     <>
@@ -300,12 +325,11 @@ function renderDesktopPicker() {
         </div>
       </div>
 
-  {isOpen &&
-  createPortal(
-    isMobile ? renderMobilePicker() : renderDesktopPicker(),
-    document.body
-  )}
+      {isOpen &&
+        createPortal(
+          isMobile ? renderMobilePicker() : renderDesktopPicker(),
+          document.body
+        )}
     </>
   );
 }
-

@@ -161,3 +161,19 @@ export function downloadPdf(blob: Blob, filename: string) {
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 }
+
+
+export const generateYearOptions = (startYear: number, endYear = null) => {
+  const currentYear = new Date().getFullYear();
+  const targetEndYear = endYear || currentYear;
+  const years = [];
+  
+  for (let year = startYear; year <= targetEndYear; year++) {
+    years.push({
+      value: year.toString(),
+      label: year.toString()
+    });
+  }
+  
+  return years;
+};

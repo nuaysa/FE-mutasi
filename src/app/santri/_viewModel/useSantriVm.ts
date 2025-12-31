@@ -8,7 +8,7 @@ import { GetAllsantrisParams } from "@/api/types/types";
 import { usesantriForm } from "../_components/SantriSchema";
 import { createStudent, editStudent, getAllStudents, getStudentById } from "@/api/santri";
 import { getSantriPdf } from "@/api/pdf";
-import { downloadPdf } from "@/utils/helpers";
+import { downloadPdf, generateYearOptions } from "@/utils/helpers";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -57,6 +57,24 @@ export const useSantriVM = () => {
       ],
       placeholder: "Pilih Status",
     },
+    {
+      key: "grade",
+      label: "Kelas",
+      type: "select" as const,
+      options: [
+        { value: "10 BAHASA 3", label: "10 BAHASA 3" },
+        { value: "11 BAHASA 3", label: "11 BAHASA 3" },
+        { value: "12 BAHASA 3", label: "12 BAHASA 3" },
+      ],
+      placeholder: "Pilih Kelas",
+    },
+    {
+      key: "generation",
+      label: "Angkatan",
+      type: "select" as const,
+      options: generateYearOptions(2012),
+      placeholder: "Pilih Angkatan",
+    },
   ];
 
   const initialFilters = Object.fromEntries(filterFields.map((f) => [f.key, ""]));
@@ -76,6 +94,12 @@ export const useSantriVM = () => {
     }
     if (filters.status && filters.status !== "") {
       params.status = filters.status as string;
+    }
+    if (filters.grade && filters.grade !== "") {
+      params.grade = filters.grade as string;
+    }
+    if (filters.generation && filters.generation !== "") {
+      params.generation = filters.generation as string;
     }
 
     return params;
@@ -159,8 +183,8 @@ export const useSantriVM = () => {
       if (mode === "create") {
         await createStudent(payload);
         showToast("Santri berhasil ditambahkan!", "SUCCESS");
-      } else if (mode === "edit" && currentSantri?.id){
-        await editStudent({id: currentSantri?.id , data: payload})
+      } else if (mode === "edit" && currentSantri?.id) {
+        await editStudent({ id: currentSantri?.id, data: payload });
         showToast("Santri berhasil diubah!", "SUCCESS");
       }
       setIsCreateModalOpen(false);

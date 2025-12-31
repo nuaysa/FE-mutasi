@@ -41,6 +41,7 @@ export interface GetAllsantrisParams {
   search?: string;
   status?: string;
   generation?: string;
+  grade?: string;
 }
 
 export type LoginParams = {

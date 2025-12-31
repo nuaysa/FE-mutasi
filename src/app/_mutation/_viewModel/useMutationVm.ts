@@ -220,7 +220,7 @@ export const useMutationVM = () => {
       ...prev,
       [key]: normalizedValue,
     }));
-    setCurrentPage(1); // Reset to first page when filter changes
+    setCurrentPage(1); 
   };
 
   const handleReset = () => {
