@@ -1,6 +1,6 @@
 import apiResolver from "@/api/apiResolver";
 import { axios, axiosNoAuth } from "@/api/index";
-import type { LoginParams, LogoutParam } from "../types/types";
+import type { LoginParams} from "../types/types";
 
 export function login(param: LoginParams) {
   return apiResolver(() => axiosNoAuth.post("auth/login", param), {
@@ -8,8 +8,8 @@ export function login(param: LoginParams) {
   });
 }
 
-export function logoutAPI(data: LogoutParam) {
-  return apiResolver(() => axios.post("auth/logout", data), {
+export function logoutAPI() {
+  return apiResolver(() => axios.post("auth/logout"), {
     throwErrorObject: true,
   });
 }

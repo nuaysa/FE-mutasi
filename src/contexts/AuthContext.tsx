@@ -136,8 +136,7 @@ export default function AuthContextProvider({
         : null;
       
       if (token) {
-        const param: LogoutParam = { token };
-        await logoutAPI(param);
+        await logoutAPI();
       }
     } catch (error) {
       console.error('Logout API error:', error);
