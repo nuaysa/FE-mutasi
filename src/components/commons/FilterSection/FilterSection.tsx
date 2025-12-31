@@ -162,7 +162,7 @@ export default function FilterSection({ filters, values, onFilterChange, onReset
   } else {
     return (
       <div className={`bg-white rounded-xl border border-neutral-gray2 px-4 py-2 w-full ${className}`}>
-        <div className="flex lg:flex-row flex-col gap-4 w-full items-center">
+        <div className="flex flex-row gap-4 w-full items-center">
           {filters && (
             <div className="flex flex-wrap gap-4 w-full">
               {filters.map((filter) => (

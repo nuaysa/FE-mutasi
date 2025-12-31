@@ -44,6 +44,22 @@ export const getStatusColor = (status: string) => {
   }
 };
 
+export const purposeMap = (purpose: string) => {
+
+
+  switch (purpose) {
+    case  "deposit_topup":
+      return "Isi Saldo";
+    case  "deposit_withdrawal":
+      return "Tarik Saldo";
+    case "debt_created":
+      return "Buat Hutang";
+    case "debt_payment":
+      return "Bayar Hutang";
+    default:
+      return "Lainnya";
+  }
+};
 export const cn = (...inputs: string[]) => {
   return twMerge(clsx(inputs));
 };
@@ -57,15 +73,9 @@ export const formatPrice = (value: string | number): string => {
   return new Intl.NumberFormat("id-ID").format(Number(numeric));
 };
 
-type TransactionType = "income" | "outcome" | "none";
+type TransactionType = "income" | "expense" | "none";
 
-export const formatPriceDisplay = ({ 
-  amount, 
-  type = "none" 
-}: { 
-  amount: number; 
-  type?: TransactionType 
-}) => {
+export const formatPriceDisplay = ({ amount, type = "none" }: { amount: number; type?: TransactionType }) => {
   const formatted = new Intl.NumberFormat("id-ID").format(Math.abs(amount));
 
   let prefix = "";
@@ -74,7 +84,7 @@ export const formatPriceDisplay = ({
   if (type === "income") {
     prefix = "+ ";
     className = "text-semantic-green1 font-extrabold font-lg";
-  } else if (type === "outcome") {
+  } else if (type === "expense") {
     prefix = "- ";
     className = "text-semantic-red1 font-extrabold font-lg";
   } else {
@@ -105,10 +115,7 @@ export const formatFilterDate = (dateString?: Date | string) => {
   return `${day} ${month} ${year}`;
 };
 
-export function mapToOptionsByKey<T>(
-  data: T[] = [],
-  key: keyof T
-) {
+export function mapToOptionsByKey<T>(data: T[] = [], key: keyof T) {
   return data
     .map((item) => {
       const value = item[key];
@@ -122,3 +129,35 @@ export function mapToOptionsByKey<T>(
     .filter(Boolean) as { value: string; label: string }[];
 }
 
+export const createURLParams = (params: Record<string, string | number | string[] | null | undefined>) => {
+  const keys = Object.keys(params);
+  if (!keys.length) return "";
+
+  const queryParams = new URLSearchParams();
+
+  keys.forEach((key) => {
+    const param = params[key];
+    if (param === undefined || param === null || param === "") return;
+
+    if (Array.isArray(param)) {
+      queryParams.set(key, param.join(","));
+    } else {
+      queryParams.set(key, String(param));
+    }
+  });
+
+  return `?${queryParams.toString()}`;
+};
+
+export function downloadPdf(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}

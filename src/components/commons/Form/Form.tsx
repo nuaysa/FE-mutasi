@@ -321,6 +321,7 @@ export default function DynamicForm<T extends FieldValues>({ fields, form, layou
                         })) ?? []
                       }
                       error={!!fieldError}
+                      disabled={field.disabled}
                       value={controllerField.value}
                       onChange={(val) => {
                         controllerField.onChange(val);

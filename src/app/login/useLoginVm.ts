@@ -7,7 +7,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 
 export const loginSchema = yup.object({
-  email: yup.string().required("* Email wajib diisi").email("* Format email yang anda masukkan tidak valid"),
+  data: yup.string().required("* Email/Nama wajib diisi"),
   password: yup.string().required("* Password wajib diisi"),
 });
 
@@ -17,7 +17,7 @@ export const useLoginForm = () => {
   return useForm<LoginFormValues>({
     resolver: yupResolver(loginSchema),
     defaultValues: {
-      email: "",
+      data: "",
       password: "",
     },
     mode: "onChange",
@@ -37,10 +37,10 @@ export function useLoginViewModel() {
 
   const loginFields: Field<LoginFormValues>[] = [
     {
-      name: "email",
-      label: "Email",
+      name: "data",
+      label: "Email/Nama",
       type: "text",
-      placeholder: "Masukkan emailmu",
+      placeholder: "Masukkan email/namamu",
     },
     {
       name: "password",
@@ -52,9 +52,9 @@ export function useLoginViewModel() {
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     try {
-      const res = await login({ email: data.email, password: data.password });
+      const res = await login({ data: data.data, password: data.password });
       if (res?.status === 200) {
-        afterSuccessLogin(res.data.accessToken, res.data.refreshToken);
+        afterSuccessLogin(res.token);
 
         setTimeout(() => {}, 100);
 

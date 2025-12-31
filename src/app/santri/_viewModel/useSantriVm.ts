@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
-import type { SortConfig } from "@/components/commons/Table/Table";
 import { useToast } from "@/contexts/ToastContext";
 import { Santri } from "../model";
 import { GetAllsantrisParams } from "@/api/types/types";
 import { usesantriForm } from "../_components/SantriSchema";
-import { dummySantri } from "@/components/dummy/Santri";
+import { createStudent, getAllStudents, getStudentById } from "@/api/santri";
+import { getSantriPdf } from "@/api/pdf";
+import { downloadPdf } from "@/utils/helpers";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -23,8 +24,8 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export const useSantriVM = () => {
-  const [santris, setSantris] = useState<Santri[] | null>(dummySantri);
-  const [currentSantri, setCurrentSantri] = useState<Santri | null>(dummySantri[1]);
+  const [santris, setSantris] = useState<Santri[] | null>([]);
+  const [currentSantri, setCurrentSantri] = useState<Santri | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -35,10 +36,6 @@ export const useSantriVM = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [sortConfig, setSortConfig] = useState<SortConfig | null>({
-    key: "createdAt",
-    direction: "desc",
-  });
   const { showToast } = useToast();
 
   const filterFields = [
@@ -51,10 +48,10 @@ export const useSantriVM = () => {
     {
       key: "status",
       label: "status",
-        type: "select" as const,
+      type: "select" as const,
       options: [
         { value: "active", label: "Aktif" },
-        { value: "incative", label: "Cuti" },
+        { value: "inactive", label: "Cuti" },
         { value: "graduated", label: "Lulus" },
         { value: "stopped", label: "Keluar" },
       ],
@@ -84,51 +81,39 @@ export const useSantriVM = () => {
     return params;
   }, []);
 
-  // const fetchsantris = useCallback(
-  //   async (params?: GetAllsantrisParams) => {
-  //     setIsLoading(true);
-  //     try {
-  //       const apiParams = params || buildApiParams(debouncedFilters, currentPage, pageSize, sortConfig);
+  const fetchSantris = useCallback(
+    async (params?: GetAllsantrisParams) => {
+      setIsLoading(true);
+      try {
+        const apiParams = params || buildApiParams(debouncedFilters, currentPage, pageSize);
 
-  //       const response = await getAllsantris(apiParams);
+        const response = await getAllStudents(apiParams);
 
-  //       if (response.data.items === null) {
-  //         setsantris(null);
-  //         setTotalItems(response.data.totalItems);
-  //       } else {
-  //         const formattedsantris = response.data.items.map((item, index) => ({
-  //           id: item.id,
-  //           number: String((apiParams.page - 1) * apiParams.size + index + 1),
-  //           createdAt: item.createdAt,
-  //           name: item.name,
-  //           createdBy: item.createdBy,
-  //           publishStatus: item.publishStatus,
-  //           originalData: item,
-  //         }));
+        if (response.data.items === null) {
+          setSantris(null);
+          setTotalItems(response.meta.total);
+        } else {
+          setSantris(response.data);
+          setTotalItems(response.meta.total);
+        }
+      } catch (error: any) {
+        showToast(error.message, "ERROR");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [buildApiParams, currentPage, pageSize, showToast, debouncedFilters]
+  );
 
-  //         setsantris(formattedsantris);
-  //         setTotalItems(response.data.totalItems);
-  //       }
-  //     } catch (error: unknown) {
-  //       showToast(error.message, "ERROR");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   },
-  //   [buildApiParams, currentPage, pageSize, sortConfig, showToast, debouncedFilters]
-  // );
+  useEffect(() => {
+    const params = buildApiParams(debouncedFilters, currentPage, pageSize);
+    fetchSantris(params);
+  }, [debouncedFilters, currentPage, pageSize, fetchSantris, buildApiParams]);
 
-  // useEffect(() => {
-  //   const params = buildApiParams(debouncedFilters, currentPage, pageSize, sortConfig);
-  //   fetchsantris(params);
-  // }, [debouncedFilters, currentPage, pageSize, sortConfig, fetchsantris, buildApiParams]);
-
-    const handleView = async (santri: Santri) => {
+  const handleView = async (santri: Santri) => {
     try {
-      // const detailResponse = await getSantriById(santri.id);
-      // const detailData = detailResponse.data;
-
-      setCurrentSantri(santri);
+      const detail = await getStudentById(santri.id!);
+      setCurrentSantri(detail.data);
       setIsDetailModalOpen(true);
     } catch (error: any) {
       showToast(error.message, "ERROR");
@@ -147,16 +132,15 @@ export const useSantriVM = () => {
 
   const handleFilterChange = (key: string, value: string | string[]) => {
     const normalizedValue = Array.isArray(value) ? value.join(",") : value;
-
     setFilterValues((prev) => ({
       ...prev,
       [key]: normalizedValue,
     }));
+    setCurrentPage(1); // Reset ke halaman 1 saat filter berubah
   };
 
   const handleReset = () => {
     setFilterValues(initialFilters);
-    setSortConfig(null);
     setCurrentPage(1);
   };
 
@@ -168,15 +152,17 @@ export const useSantriVM = () => {
     try {
       const payload: Santri = {
         name: data.name,
-        class: data.class,
+        grade: data.grade,
         status: data.status,
         generation: data.generation,
-    };
+      };
 
-      // await createsantri(payload);
+      await createStudent(payload);
 
       setIsCreateModalOpen(false);
-      showToast( "Santri berhasil ditambahkan!", "SUCCESS");
+      santriForm.reset(); // Reset form setelah submit
+      showToast("Santri berhasil ditambahkan!", "SUCCESS");
+      fetchSantris(); // Refresh list
     } catch (error: any) {
       showToast(error.message, "ERROR");
     } finally {
@@ -184,22 +170,26 @@ export const useSantriVM = () => {
     }
   };
 
-  const handleDownloadAll = async () => {
+  const handleDownloadSantriReport = async () => {
     try {
       setIsLoading(true);
+      if (!currentSantri?.id) {
+        showToast("Data santri tidak tersedia", "ERROR");
+        return;
+      }
+      const response = await getSantriPdf(currentSantri.id);
 
-      // const params = buildFilterParams(filtersValue);
+      const safeName = currentSantri.name ? currentSantri.name.replace(/\s+/g, "-").toLowerCase() : currentSantri.name;
 
-      // const res = await api.get("/mutasi", {
-      //   params: {
-      //     ...params,
-      //     export: true,
-      //   },
-      // });
-
-      // downloadCSVFromRawData(res.data, "mutasi");
+      const filename = `laporan-santri-${safeName}-${Date.now()}.pdf`;
+      const blob = new Blob([response.data], {
+        type: "application/pdf",
+      });
+      downloadPdf(blob, filename);
+      showToast("PDF laporan berhasil diunduh", "SUCCESS");
     } catch (error: any) {
-      showToast(error.message, "ERROR");
+      console.error("Download error:", error);
+      showToast(error.message || "Gagal mengunduh laporan PDF", "ERROR");
     } finally {
       setIsLoading(false);
     }
@@ -219,17 +209,19 @@ export const useSantriVM = () => {
     isCreateModalOpen,
     isDetailModalOpen,
     currentPage,
-    sortConfig,
     pageSize,
     isFiltering,
     totalItems,
 
-    handleDownloadAll,
+    handleDownloadSantriReport,
+
     handleFilterChange,
     handleReset,
     onSubmit,
     handlePageChange,
     handlePageSizeChange,
+    handleView,
+
     setIsLoading,
     setIsModalOpen,
     setIsDeleteModalOpen,
@@ -238,6 +230,5 @@ export const useSantriVM = () => {
     setIsDetailModalOpen,
     setMode,
     setCurrentSantri,
-    handleView
   };
 };

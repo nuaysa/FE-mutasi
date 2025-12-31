@@ -1,12 +1,6 @@
-import axios, {
-  type AxiosError,
-  type AxiosRequestConfig,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-} from "axios";
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { deleteCookie } from "cookies-next";
-import CryptoJS from "crypto-js";
-import { PATHS } from "@/utils/constant";
+import { PATHS, STORAGE_KEYS } from "@/utils/constant";
 
 import type { APIResponse, ErrorResponseData } from "./types/axios";
 
@@ -30,8 +24,7 @@ type AxiosConfigParams = {
 };
 
 export const createErrorResponse = (err: AxiosError<ErrorResponseData>) => {
-  const message =
-    err?.response?.data?.message || err?.message || "Error Exception API";
+  const message = err?.response?.data?.message || err?.message || "Error Exception API";
 
   return {
     data: err?.response?.data,
@@ -40,20 +33,17 @@ export const createErrorResponse = (err: AxiosError<ErrorResponseData>) => {
   };
 };
 
-async function requestHandler(
-  request: AxiosRequestConfig,
-  config?: ConfigOptions
-) {
+async function requestHandler(request: AxiosRequestConfig, config?: ConfigOptions) {
   if (!request.headers) request.headers = {};
 
   if (config?.ignoreHeader) return request;
 
-  if (!config?.isFormData) {
+  if (!config?.isFormData && request.responseType !== "blob") {
     request.headers["Content-Type"] = "application/json";
   }
+
   if (config?.isAuth) {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEYS.TOKEN) : null;
     if (token) request.headers["Authorization"] = `Bearer ${token}`;
   }
 
@@ -63,18 +53,12 @@ async function requestHandler(
 const responseHandler = (response: AxiosResponse<APIResponse<null>>) => {
   const errorMessage = response.data?.message || "Error Exception API";
   const contentType = response.headers["content-type"];
-  if (
-    contentType?.includes("image") ||
-    response.request?.responseType === "blob"
-  ) {
+
+  if (response.request?.responseType === "blob" || response.request?.responseType === "arraybuffer" || contentType?.includes("application/pdf") || contentType?.includes("image")) {
     return response;
   }
 
-  if (
-    (Object.keys(response.data).includes("status") &&
-      !`${response.data.status}`.startsWith("2")) ||
-    !`${response.status}`.startsWith("2")
-  ) {
+  if ((Object.keys(response.data).includes("status") && !`${response.data.status}`.startsWith("2")) || !`${response.status}`.startsWith("2")) {
     throw {
       error: errorMessage,
       response,
@@ -87,94 +71,27 @@ const responseHandler = (response: AxiosResponse<APIResponse<null>>) => {
 
   return response;
 };
-
 const errorHandler = (error: AxiosError<ErrorResponseData>) => {
-  if (!error.response) {
-    return Promise.reject({
-      message:
-        "Tidak dapat terhubung ke server. Silakan coba beberapa saat lagi.",
-      status: 0,
-    });
-  }
+  const status = error.response?.status ?? 0;
 
-  const { status, data } = error.response;
+  const message = error.response?.data?.message || error.message || "Terjadi kesalahan. Silakan coba lagi.";
 
   if (status === 401 || status === 403) {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "";
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("deviceId");
-    deleteCookie("token");
-
-    if (typeof window !== "undefined" && currentPath !== PATHS.login) {
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      deleteCookie(STORAGE_KEYS.TOKEN);
       window.location.href = PATHS.login;
     }
 
-    if (status === 401) {
-      return Promise.reject({
-        message: "Sesi Anda telah berakhir. Silakan login kembali.",
-        status,
-      });
-    }
-
-    if (status === 403) {
-      return Promise.reject({
-        message: "Anda tidak memiliki akses untuk melakukan aksi ini.",
-        status,
-      });
-    }
+    return Promise.reject({ message, status });
   }
 
-  if (status === 404) {
+  if (status >= 400 && status < 500) {
     return Promise.reject({
-      message: "Data tidak ditemukan.",
+      message,
       status,
+      data: error.response?.data,
     });
-  }
-
-  if (status === 400) {
-    const originalMessage = data?.message?.toLowerCase() || "";
-    let message = originalMessage;
-
-    if (Array.isArray(data?.data) && data.data.length > 0) {
-      const first = data.data[0];
-      const rawError = first?.Error?.toLowerCase() || "";
-
-      if (rawError.includes("notblank") || rawError.includes("required")) {
-        message = "Data tidak lengkap.";
-      } else {
-        message = `Field ${first.Field} tidak valid.`;
-      }
-
-      return Promise.reject({ message, status, data });
-    }
-
-    if (!originalMessage) {
-      message = "Terjadi kesalahan. Silakan coba lagi.";
-    } else {
-      if (
-        originalMessage.includes("date") &&
-        originalMessage.includes("before")
-      ) {
-        message = "Periode tanggal tidak valid.";
-      } else if (
-        originalMessage.includes("email") ||
-        originalMessage.includes("password")
-      ) {
-        message = "Email atau Password salah";
-      } else if (originalMessage.includes("periode already exists")) {
-        message = "Data dengan periode ini sudah terdaftar.";
-      } else if (originalMessage.includes("name already exists")) {
-        message = "Data dengan title ini sudah terdaftar.";
-      } else if (originalMessage.includes("invalid")) {
-        message = "Data tidak valid.";
-      } else {
-        message = "Terjadi kesalahan. Silakan coba lagi.";
-      }
-    }
-
-    return Promise.reject({ message, status, data });
   }
 
   if (status >= 500) {
@@ -184,10 +101,7 @@ const errorHandler = (error: AxiosError<ErrorResponseData>) => {
     });
   }
 
-  return Promise.reject({
-    message: data?.message || "Terjadi kesalahan. Silakan coba lagi.",
-    status,
-  });
+  return Promise.reject({ message, status });
 };
 
 const getCustomAxios = ({ baseURL, config }: AxiosConfigParams) => {

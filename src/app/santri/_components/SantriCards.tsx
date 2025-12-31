@@ -3,12 +3,14 @@ import { useSantriVM } from "../_viewModel/useSantriVm";
 import { formatPriceDisplay } from "@/utils/helpers";
 import ActionButton from "@/components/commons/ActionButton";
 import { renderStatus } from "@/components/commons/Badge/Badge";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 interface SantriCardsProps {
   vm: ReturnType<typeof useSantriVM>;
 }
 
 export default function SantriCards({ vm }: SantriCardsProps) {
+  const { isAdmin } = useAuthContext();
   if (vm.isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
@@ -21,7 +23,7 @@ export default function SantriCards({ vm }: SantriCardsProps) {
 
   if (!vm.santris || vm.santris.length === 0) {
     return (
-      <div className="grid grid-cols-1">
+      <div className="grid grid-cols-1 my-10">
         <EmptySantriState />
       </div>
     );
@@ -42,17 +44,22 @@ export default function SantriCards({ vm }: SantriCardsProps) {
                 </div>
 
                 <p className="text-neutral-gray1 text-sm">
-                  {santri.class} ・ ANGKATAN {santri.generation}
+                  {santri.grade} ・ ANGKATAN {santri.generation}
                 </p>
               </span>
             </span>
-            <ActionButton
-              onView={() => vm.handleView(santri)}
-              onEdit={() => {
-                vm.setMode("edit");
-                vm.setIsCreateModalOpen(true);
-              }}
-            />
+            {isAdmin ? (
+              <ActionButton
+                onView={() => vm.handleView(santri)}
+                onEdit={() => {
+                  vm.setMode("edit");
+                  vm.setCurrentSantri(santri);
+                  vm.setIsCreateModalOpen(true);
+                }}
+              />
+            ) : (
+              <ActionButton onView={() => vm.handleView(santri)} />
+            )}
           </div>
 
           <div className="w-full flex gap-2 justify-between items-center pt-4">
@@ -70,8 +77,8 @@ export default function SantriCards({ vm }: SantriCardsProps) {
               <p className="text-sm text-neutral-gray1">Hutang</p>
               <p className="text-md font-extrabold text-semantic-red1">
                 {formatPriceDisplay({
-                  amount: santri.total ?? 0,
-                  type: "outcome",
+                  amount: santri.totalDebt ?? 0,
+                  type: "expense",
                 })}
               </p>
             </div>
@@ -86,7 +93,7 @@ function EmptySantriState() {
     <Card>
       <div className="flex flex-col items-center justify-center py-14 gap-2 text-center">
         <p className="text-neutral-gray1 font-semibold text-lg">Data Santri Tidak Ditemukan</p>
-        <p className="text-sm text-neutral-gray2 max-w-xs">Silakan tambahkan santri terlebih dahulu untuk mulai mencatat keuangan</p>
+        <p className="text-sm text-neutral-gray1 max-w-xs">Silakan tambahkan santri terlebih dahulu untuk mulai mencatat keuangan</p>
       </div>
     </Card>
   );

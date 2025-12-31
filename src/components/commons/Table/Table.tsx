@@ -38,7 +38,7 @@ interface TableProps<T> {
   rowId?: keyof T;
   sortConfig?: SortConfig;
   expandableRender?: (row: T) => React.ReactNode;
- showActionColumn?: boolean;
+  showActionColumn?: boolean;
   actionColumnHeader?: string;
 }
 
@@ -63,7 +63,7 @@ function TableLoading({ colSpan }: { colSpan: number }) {
 function TableEmpty({ title, onReset, emptyMessage, isFiltering = false }: { title?: string; onReset?: () => void; emptyMessage?: React.ReactNode; isFiltering: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center gap-1 w-full my-15">
-      <Image src="/assets/not-found.gif" alt="tidak ditemukan" width={300} height={140} />
+      <Image src="/not-found.png" alt="tidak ditemukan" width={60} height={90} />
 
       {emptyMessage ? emptyMessage : <p className="text-neutral-black font-bold text-lg">{`${title ?? "Data"} tidak ditemukan`}</p>}
 
@@ -192,7 +192,7 @@ export default function Table<T>({
   return (
     <div className={`w-full ${className}`}>
       {(isLoading || safeData.length > 0) && (
-        <div className={cn("overflow-x-auto w-full rounded-lg border border-neutral-gray2 shadow-sm" )}>
+        <div className={cn("overflow-x-auto w-full rounded-lg border border-neutral-gray2 shadow-sm")}>
           <table className="table-auto w-full bg-white border-collapse">
             <thead className="bg-neutral-gray2 sticky top-0 z-20">
               <tr>
@@ -211,7 +211,9 @@ export default function Table<T>({
                     onClick={() => col.sortable && handleSort(col)}
                   >
                     <div className={cn("h-full flex items-center relative pr-4", col.align === "center" ? "justify-center" : "", col.align === "right" ? "justify-end" : "", !col.align ? "justify-between" : "")}>
-                     <p className="text-neutral-gray1 font-bold">  {col.header.toUpperCase()} {col.required && <span className="text-semantic-red1">*</span>}
+                      <p className="text-neutral-gray1 font-bold">
+                        {" "}
+                        {col.header.toUpperCase()} {col.required && <span className="text-semantic-red1">*</span>}
                       </p>
                       {col.sortable && (
                         <span className={cn("cursor-pointer", col.align === "center" || "right" ? "ml-1" : "")}>
@@ -227,9 +229,11 @@ export default function Table<T>({
                     key={`fixed-${col.header.toUpperCase()}`}
                     className={cn(
                       headerVariants({
-                      isFirst: idx === 0,
-                      fixed: true,
-                    }),"bg-neutral-gray4")}
+                        isFirst: idx === 0,
+                        fixed: true,
+                      }),
+                      "bg-neutral-gray4"
+                    )}
                     style={{
                       right: getFixedOffset(idx),
                       minWidth: col.width || 60,
@@ -238,7 +242,6 @@ export default function Table<T>({
                   >
                     <div className="h-full w-full flex items-center justify-center relative pr-4">
                       <p className="text-neutral-gray1 font-bold">{col.header.toUpperCase()}</p>
-                      
                     </div>
                   </th>
                 ))}
@@ -255,13 +258,13 @@ export default function Table<T>({
 
                   return (
                     <React.Fragment key={id}>
-                      <tr className={cn("hover:bg-gray-50 border-b border-neutral-gray2 last:border-b-0" , expandableRender ? "cursor-pointer" : "")}>
+                      <tr className={cn("hover:bg-gray-50 border-b border-neutral-gray2 last:border-b-0", expandableRender ? "cursor-pointer" : "")}>
                         {regularColumns.map((col, idx) => renderCell(row, col, idx))}
                         {fixedColumns.map((col, idx) => renderCell(row, col, idx, true))}
                       </tr>
 
                       {isExpanded && expandableRender && (
-                        <tr className={cn("bg-neutral-gray3/10 border-b border-neutral-gray2" )}>
+                        <tr className={cn("bg-neutral-gray3/10 border-b border-neutral-gray2")}>
                           <td colSpan={totalColumns + 1} className="p-4">
                             {expandableRender(row)}
                           </td>

@@ -1,25 +1,23 @@
+import { Mutation } from "@/app/_mutation/model";
+
 export interface Santri {
   id?: string;
-  name: string
-  class : string
-  status : string
-  generation : number 
-  deposit?: number
-  debt?: debt[] 
-  total?: number 
-  history?:details[]
+  name: string;
+  grade: string;
+  status: string;
+  generation: number;
+  deposit?: number;
+  debt?: debt[];
+  totalDebt?: number;
+  transactions?: Mutation[];
 }
 
 export interface debt {
-  id?: string;
-  amount: number 
-  info: string 
+  id: string;
+  info: string;
+  totalAmount: string;
+  remainingAmount: string;
+  createdAt: string;
+  status: string;
 }
 
-export interface details {
-  id?: string;
-  santriId: number
-  date: string
-  amount: number
-  item: string
-}

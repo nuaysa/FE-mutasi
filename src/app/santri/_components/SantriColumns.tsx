@@ -15,9 +15,15 @@ export const santriFields: Field<SantriFormValue>[] = [
     type: "select",
     placeholder: "Pilih Status Santri",
     required: true,
+    options: [
+      { value: "active", label: "Aktif" },
+      { value: "inactive", label: "Cuti" },
+      { value: "graduated", label: "Lulus" },
+      { value: "stopped", label: "Keluar" },
+    ],
   },
   {
-    name: "class",
+    name: "grade",
     label: "Kelas",
     type: "text",
     placeholder: "Masukkan Kelas Santri",
@@ -30,6 +36,4 @@ export const santriFields: Field<SantriFormValue>[] = [
     placeholder: "Masukkan Tahun Masuk Santri",
     required: true,
   },
-
-
 ];

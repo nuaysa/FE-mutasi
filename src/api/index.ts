@@ -7,9 +7,6 @@ export const axios = getCustomAxios({
 
 export const axiosNoAuth = getCustomAxios({
   baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}`,
-  config: {
-    includeDeviceId: true,
-  },
 });
 
 export const axiosFormData = getCustomAxios({

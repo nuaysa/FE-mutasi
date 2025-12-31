@@ -1,17 +1,58 @@
+import { InputMutationParams } from "@/api/types/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-export const mutationSchema = yup.object({
-  date: yup.string().required("wajib diisi").defined(),
-  type: yup.mixed<"income" | "outcome">().oneOf(["income", "outcome"]).optional().default('income'),
-  amount: yup.number().required("wajib diisi"),
-  description: yup.string().optional().default(''),
-  information: yup.string().optional().default(''),
-  category: yup.string().required("wajib diisi"),
-});
+export type MutationFormValue = Omit<InputMutationParams, "id" | "createdAt" | "updatedAt"> & {
+  date: string;
+  santriId?: string | null;
+  debtId?: string | null;
+  vendorId?: string | null;
+};
 
-export type MutationFormValue = yup.InferType<typeof mutationSchema>;
+export const mutationSchema = yup.object().shape({
+  date: yup.string().required("Tanggal wajib diisi"),
+
+  type: yup.mixed<"income" | "expense">().oneOf(["income", "expense"]).required(),
+
+  purpose: yup.mixed<"deposit_topup" | "deposit_withdrawal" | "debt_created" | "debt_payment" | "other">().oneOf(["deposit_withdrawal", "deposit_topup", "debt_created", "debt_payment", "other"]).required(),
+
+  amount: yup.number().typeError("Nominal wajib diisi").positive("Nominal harus lebih dari 0").required("Nominal wajib diisi"),
+
+  description: yup.string().nullable().optional(),
+
+  categoryId: yup.string().required("Kategori wajib diisi"),
+
+  santriId: yup
+    .string()
+    .nullable()
+    .optional()
+    .when("purpose", {
+      is: (p: any) => {
+        const purpose = p as MutationFormValue["purpose"];
+        return ["deposit_topup", "deposit_withdrawal", "debt_created", "debt_payment"].includes(purpose);
+      },
+      then: (schema) => schema.required("Santri wajib dipilih") as yup.StringSchema,
+    }),
+
+  debtId: yup
+    .string()
+    .nullable()
+    .optional()
+    .when("purpose", {
+      is: "debt_payment",
+      then: (schema) => schema.required("Hutang wajib dipilih") as yup.StringSchema,
+    }),
+
+  vendorId: yup
+    .string()
+    .nullable()
+    .optional()
+    .when("santriId", {
+      is: (v: any) => !v,
+      then: (schema) => schema.required("Vendor wajib dipilih") as yup.StringSchema,
+    }),
+}) as yup.ObjectSchema<MutationFormValue>;
 
 export const useMutationForm = () => {
   return useForm<MutationFormValue>({
@@ -19,10 +60,13 @@ export const useMutationForm = () => {
     defaultValues: {
       date: "",
       type: "income",
-      category: "",
-      amount: undefined,
-      description: "",
-      information: "",
+      purpose: "other",
+      categoryId: "",
+      amount: 0, // Ubah undefined jadi 0
+      description: "-",
+      santriId: null,
+      debtId: null,
+      vendorId: null,
     },
     mode: "onSubmit",
     reValidateMode: "onBlur",

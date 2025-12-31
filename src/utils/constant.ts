@@ -23,7 +23,6 @@ export const statusMap: Record<
   },
 };
 
-
 export const ALIGN_CLASS = {
   left: "text-left justify-start",
   center: "text-center justify-center",
@@ -36,7 +35,11 @@ export const PATHS = {
 };
 
 export const ROLE = {
-  SUPERADMIN: "superadmin",
   ADMIN: "admin",
   USER: "user",
+};
+
+export const STORAGE_KEYS = {
+  TOKEN: "anshorussunnah_token",
+  PROFILE: "anshorussunnah_profile",
 };

@@ -43,13 +43,20 @@ export default function Header() {
     },
   ];
 
+if (userProfile?.role === "admin") {
+  navItems.push({
+    name: "User",
+    href: "/users",
+    isActive: pathname?.startsWith("/users"),
+  });
+}
   return (
     <header className="w-full fixed top-0 flex items-center justify-between bg-neutral-white border-b px-8 md:px-16 lg:px-24 xl:px-52 h-15 z-40">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex cursor-pointer items-center mx-4">
           <Image src="/assets/logo.png" alt="Logo" width={40} height={40} priority />
           <div className="flex flex-col justify-center ml-2">
-            <p className="text-lg text-black font-bold leading-tight">Anshorussunnah</p>
+            <p className="text-lg text-neutral-black font-bold leading-tight">Anshorussunnah</p>
             <p className="text-sm text-neutral-gray1 font-light leading-tight">Finance Management</p>
           </div>
         </Link>
@@ -84,11 +91,11 @@ export default function Header() {
           >
             <div className="flex items-center gap-2">
               <div className="bg-primary-main border border-primary-surface text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
-                {profile ?? "A"}
+                {profile}
               </div>
               <div className="hidden md:block">
                 <p className="text-sm font-medium">{userProfile?.name}</p>
-                <p className="text-xs text-neutral-gray1">Admin</p>
+                <p className="text-xs text-neutral-gray1">{userProfile?.role}</p>
               </div>
             </div>
           </button>

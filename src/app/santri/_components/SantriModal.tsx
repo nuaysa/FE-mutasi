@@ -16,58 +16,41 @@ interface IncomeModalProps {
 
 export default function SantriCreateModal({ isOpen, onClose, vm }: IncomeModalProps) {
   const { santriForm, onSubmit, mode, currentSantri } = vm;
- const { handleSubmit, reset } = santriForm;
-
+  const { handleSubmit, reset } = santriForm;
   useEffect(() => {
     if (isOpen && mode === "edit" && currentSantri) {
       reset({
         name: currentSantri.name,
-        class : currentSantri.class,
-        status : currentSantri.status,
-        generation : currentSantri.generation,
+        grade: currentSantri.grade,
+        status: currentSantri.status,
+        generation: currentSantri.generation,
       });
     }
     if (isOpen && mode === "create") {
       reset({
         name: "",
-        class: "",
+        grade: "",
         status: "",
-        generation: undefined
+        generation: undefined,
       });
     }
   }, [isOpen, mode, currentSantri, reset]);
 
   const isMobile = useIsMobile();
+  const ModalComponent = isMobile ? BottomSheetModal : BaseModal;
 
-  if (isMobile) {
-    return (
-      <BottomSheetModal
-        isOpen={isOpen}
-        onClose={onClose}
-        cancelText="Batal"
-       submitText={mode === "create" ? "Tambah Santri" : "Simpan perubahan"}
+  return (
+    <ModalComponent
+      isOpen={isOpen}
+      onClose={onClose}
+      cancelText="Batal"
+      submitText={mode === "create" ? "Tambah Santri" : "Simpan perubahan"}
       submitIcon={mode === "create" ? <Plus /> : undefined}
       onSubmit={handleSubmit(onSubmit)}
       title={mode === "create" ? "Tambah Data Santri" : "Ubah Data Santri"}
-     isAction={false}
-      >
-        <DynamicForm fields={santriFields} form={santriForm} />
-      </BottomSheetModal>
-    );
-  } else {
-    return (
-      <BaseModal
-   isOpen={isOpen}
-        onClose={onClose}
-        cancelText="Batal"
-       submitText={mode === "create" ? "Tambah Santri" : "Simpan perubahan"}
-      submitIcon={mode === "create" ? <Plus /> : undefined}
-      onSubmit={handleSubmit(onSubmit)}
-      title={mode === "create" ? "Tambah Data Santri" : "Ubah Data Santri"}
-     isAction={false}
-      >
-        <DynamicForm fields={santriFields} form={santriForm} />
-      </BaseModal>
-    );
-  }
+      isAction={false}
+    >
+      <DynamicForm fields={santriFields} form={santriForm} />
+    </ModalComponent>
+  );
 }

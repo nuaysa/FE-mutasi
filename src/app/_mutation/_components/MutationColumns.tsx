@@ -1,21 +1,24 @@
 import type { Field } from "@/components/commons/Form/Form";
 import type { Column } from "@/components/commons/Table/Table";
 import type { Mutation } from "../model";
-import { formatDate, formatPriceDisplay, mapToOptionsByKey } from "@/utils/helpers";
+import { formatDate, formatPriceDisplay } from "@/utils/helpers";
 import { MutationFormValue } from "./MutationSchema";
 import ActionButton from "@/components/commons/ActionButton";
-import { dummyCategories, dummyVendors } from "@/components/dummy/Settings";
-import { dummySantri } from "@/components/dummy/Santri";
+import { useMutationVM } from "../_viewModel/useMutationVm";
 
-export const getMutationColumns = (): Column<Mutation>[] => [
+export const getMutationColumns = (vm: ReturnType<typeof useMutationVM>): Column<Mutation>[] => [
   {
     header: "Tanggal",
     accessor: "date",
     render: (row) => formatDate({ date: row.date }),
   },
-  { header: "Kategori / Sumber", accessor: "category" },
-  { header: "vendor / Pihak Ketiga", accessor: "information" },
-  { header: "Keterangan", accessor: "description" },
+  { header: "Kategori / Sumber", accessor: "category", render: (row) => row.category?.name ?? "-" },
+  {
+    header: "Subjek",
+    accessor: "santri",
+    render: (row) => row.santri?.name ?? row.vendor?.name ?? "-",
+  },
+  { header: "Keterangan", accessor: "description", render: (row) => row.description ?? "-" },
   {
     header: "Jumlah",
     accessor: "amount",
@@ -36,8 +39,8 @@ export const getMutationColumns = (): Column<Mutation>[] => [
     render: (row: Mutation) => (
       <ActionButton
         variant="PRIMARY"
-        onPrint={() => {
-          // vm.setIsDeleteModalOpen(true);
+        onDownload={() => {
+          vm.handleDownloadPdf(row);
         }}
       />
     ),
@@ -45,6 +48,12 @@ export const getMutationColumns = (): Column<Mutation>[] => [
 ];
 
 export const sharedFields: Field<MutationFormValue>[] = [
+  {
+    name: "santriId",
+    label: "Pilih Santri (Opsional)",
+    type: "select",
+    placeholder: "Pilih Santri (Opsional)",
+  },
   {
     name: "date",
     label: "Tanggal",
@@ -60,7 +69,13 @@ export const sharedFields: Field<MutationFormValue>[] = [
     placeholder: "Masukkan Nominal (Rp)",
     required: true,
   },
-
+  {
+    name: "purpose",
+    label: "Tujuan Mutasi",
+    type: "select",
+    placeholder: "Pilih Tujuan Mutasi",
+    required: true,
+  },
   {
     name: "description",
     label: "Keterangan",
@@ -71,36 +86,32 @@ export const sharedFields: Field<MutationFormValue>[] = [
 
 export const incomeFields: Field<MutationFormValue>[] = [
   {
-    name: "category",
+    name: "categoryId",
     label: "Sumber Pemasukan",
     type: "select",
     placeholder: "Pilih Sumber Pemasukan",
     required: true,
-    options: mapToOptionsByKey(dummyCategories, "name"),
   },
   {
-    name: "information",
-    label: "Pilih Santri (Opsional)",
+    name: "debtId",
+    label: "Bayar Hutang (Opsional)",
     type: "select",
-    placeholder: "Pilih Santri (Opsional)",
-    options: mapToOptionsByKey(dummySantri, "name"),
+    placeholder: "Pilih Hutang",
   },
 ];
 
-export const outcomeFields: Field<MutationFormValue>[] = [
+export const expenseFields: Field<MutationFormValue>[] = [
   {
-    name: "category",
+    name: "categoryId",
     label: "Kategori Rutin / Tahunan",
     type: "select",
     placeholder: "Masukkan Kategori Rutin / Tahunan",
     required: true,
-    options: mapToOptionsByKey(dummyCategories, "name"),
   },
   {
-    name: "information",
+    name: "vendorId",
     label: "Vendor / Penerima",
     type: "select",
     placeholder: "Masukkan Nama vendor / Penerima",
-    options: mapToOptionsByKey(dummyVendors, "name"),
   },
 ];

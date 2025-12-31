@@ -2,73 +2,62 @@
 
 import Button from "@/components/commons/Button";
 import FilterSection from "@/components/commons/FilterSection";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { PlusCircle } from "lucide-react";
-import { hasMultiplePages } from "@/utils/helpers";
 import Pagination from "@/components/commons/Pagination";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { hasMultiplePages } from "@/utils/helpers";
+import { PlusCircle } from "lucide-react";
+
 import { useSantriVM } from "./_viewModel/useSantriVm";
-import SantriCreateModal from "./_components/SantriModal";
 import SantriCards from "./_components/SantriCards";
+import SantriCreateModal from "./_components/SantriModal";
 import SantriDetailModal from "./_components/SantriDetailModal";
-import { dummySantri } from "@/components/dummy/Santri";
 
-// export default withAuth(EventPage, {
-//   role: [ROLE.ADMIN, ROLE.SUPERADMIN, ROLE.USER],
-// });
-
-export default function home() {
+export default function Home() {
   const vm = useSantriVM();
-
-  const { isAdmin, isSuperAdmin, isAuthenticated } = useAuthContext();
+  const { isAdmin } = useAuthContext();
   const isMobile = useIsMobile();
+
   return (
     <>
-      <div className="mx-2 md:px-0 flex flex-col md:flex-row gap-3 lg:gap-0 justify-center items-center md:justify-between mb-6">
-        <h1 className="text-2xl text-neutral-black font-bold">Laporan Keuangan Santri</h1>
-        <div className={`${isMobile ? "hidden" : "flex"} gap-3`}>
-          <Button
-            text="Tambah Santri"
-            icon={<PlusCircle />}
-            onClick={() => {
-              vm.setIsCreateModalOpen(true);
-            }}
-          />
-        </div>
+      <div className="mx-2 md:px-0 flex flex-col md:flex-row gap-3 justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-neutral-black">Laporan Keuangan Santri</h1>
+
+        {!isMobile && isAdmin && 
+        <Button text="Tambah Santri" icon={<PlusCircle />} onClick={() => vm.setIsCreateModalOpen(true)} />
+        }
       </div>
 
-      <div className={`${isMobile ? "hidden" : "flex"}`}>
-        <FilterSection filters={vm.filterFields} values={vm.filterValues} onFilterChange={vm.handleFilterChange} onReset={vm.handleReset} />
-      </div>
+      {!isMobile && <FilterSection filters={vm.filterFields} values={vm.filterValues} onFilterChange={vm.handleFilterChange} onReset={vm.handleReset} />}
 
-      <SantriCards vm={vm} />
-      {vm.santris && vm.santris.length !== 0 && hasMultiplePages(vm.totalItems, vm.pageSize) && (
-        <Pagination totalItems={vm.totalItems} currentPage={vm.currentPage} perPage={vm.pageSize} onPageChange={vm.handlePageChange} onPerPageChange={vm.handlePageSizeChange} />
-      )}
+      <div className={isMobile && isAdmin ? "pb-24" : ""}>
+        <SantriCards vm={vm} />
+
+        {vm.santris?.length !== 0 && hasMultiplePages(vm.totalItems, vm.pageSize) && (
+          <Pagination totalItems={vm.totalItems} currentPage={vm.currentPage} perPage={vm.pageSize} onPageChange={vm.handlePageChange} onPerPageChange={vm.handlePageSizeChange} />
+        )}
+      </div>
 
       <SantriCreateModal isOpen={vm.isCreateModalOpen} onClose={() => vm.setIsCreateModalOpen(false)} vm={vm} />
+
       <SantriDetailModal
+        santri={vm.currentSantri!}
+        isOpen={vm.isDetailModalOpen}
+        onClose={() => vm.setIsDetailModalOpen(false)}
         onEdit={() => {
           vm.setIsDetailModalOpen(false);
           vm.setMode("edit");
           vm.setIsCreateModalOpen(true);
         }}
-        isOpen={vm.isDetailModalOpen}
-        onClose={() => vm.setIsDetailModalOpen(false)}
-        santri={dummySantri[0]}
       />
 
-      <div className={`${isMobile ? "flex" : "hidden"} justify-between items-center border-t px-3 border-primary-surface bg-white sticky bottom-0 py-2 w-full gap-2 z-20`}>
-        <Button
-          className="w-1/2"
-          text="Tambah Santri"
-          icon={<PlusCircle />}
-          onClick={() => {
-            vm.setIsCreateModalOpen(true);
-          }}
-        />
-        <FilterSection className={`${isMobile ? "flex" : "hidden"}`} filters={vm.filterFields} values={vm.filterValues} onFilterChange={vm.handleFilterChange} onReset={vm.handleReset} />
-      </div>
+      {isMobile && isAdmin && (
+        <div className="fixed bottom-0 w-full justify-evenly left-0 right-0 z-50 bg-white border-t border-primary-surface px-3 py-2 flex gap-2">
+          <Button className="flex-[0.85]" text="Tambah Santri" icon={<PlusCircle />} onClick={() => vm.setIsCreateModalOpen(true)} />
+
+          <FilterSection className="flex-[0.15]" filters={vm.filterFields} values={vm.filterValues} onFilterChange={vm.handleFilterChange} onReset={vm.handleReset} />
+        </div>
+      )}
     </>
   );
 }

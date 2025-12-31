@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Command, CommandItem, CommandList, CommandInput, CommandEmpty } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/utils/helpers";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 type Option = {
   value: string;
@@ -46,7 +46,12 @@ export default function SelectField({
 
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : internalValue;
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
 
+    if (!isControlled) setInternalValue("");
+    onChange?.("");
+  };
   const handleChange = (val: string) => {
     if (!isControlled) setInternalValue(val);
     onChange?.(val);
@@ -101,7 +106,17 @@ export default function SelectField({
         </PopoverContent>
       </Popover>
 
-      {icon && <ChevronDown className=" text-black absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />}
+      {icon && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {value && !disabled ? (
+            <button type="button" onClick={handleClear} className="text-neutral-gray1 hover:text-black">
+              <X className="w-4 h-4" />
+            </button>
+          ) : (
+            <ChevronDown className="w-4 h-4 text-black pointer-events-none" />
+          )}
+        </div>
+      )}
     </div>
   );
 }

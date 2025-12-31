@@ -61,7 +61,7 @@ export default function CardList({
 
   return (
     <div className={cn("bg-white rounded-lg border border-neutral-gray2 p-6", className)}>
-      {/* Header */}
+     
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-bold text-neutral-black">{title}</h2>
@@ -83,7 +83,6 @@ export default function CardList({
         )}
       </div>
 
-      {/* Items List */}
       <div className="space-y-3">
         {displayItems.length > 0 ? (
           displayItems.map((item) => (
@@ -118,7 +117,7 @@ export default function CardList({
                 )}
                 
                 {showActions && (item.onEdit || item.onDelete) && (
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-2 opacity-100 transition-opacity">
                     {item.onEdit && (
                       <button
                         onClick={(e) => {

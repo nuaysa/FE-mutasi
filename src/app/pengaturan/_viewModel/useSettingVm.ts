@@ -1,27 +1,74 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useToast } from "@/contexts/ToastContext";
 import type { Setting } from "../model";
 import { useSettingForm } from "../_components/SettingsSchema";
-import { dummyCategories, dummyVendors } from "@/components/dummy/Settings";
+import { createCategory, deleteCategory, editCategory, getCategories } from "@/api/category";
+import { createVendor, deleteVendor, editVendor, getVendors } from "@/api/vendor";
 
 export const useSettingVM = () => {
-  const [categories, setCategories] = useState<Setting[]>(dummyCategories);
-  const [vendors, setVendors] = useState<Setting[]>(dummyVendors);
+  const [categories, setCategories] = useState<Setting[]>([]);
+  const [vendors, setVendors] = useState<Setting[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(25);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [type, setType] = useState<"category" | "vendor">("category");
   const [mode, setMode] = useState<"create" | "edit">("create");
-  const [selectedItem, setSelectedItem] = useState<Setting | null>(dummyCategories[0]);
-  
+  const [selectedItem, setSelectedItem] = useState<Setting | null>(null);
+
   const { showToast } = useToast();
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await getCategories();
+
+      if (response && response.data) {
+        setCategories(response.data);
+        setTotalItems(response.data.length);
+      }
+    } catch (error: any) {
+      showToast(error.message || "Gagal mengambil data kategori", "ERROR");
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, [ showToast]);
+
+  const fetchVendors = useCallback(async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await getVendors();
+
+      if (response && response.data) {
+        setVendors(response.data);
+        setTotalItems( response.data.length);
+      }
+    } catch (error: any) {
+      showToast(error.message || "Gagal mengambil data vendor", "ERROR");
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, [ showToast]);
+
+  const fetchData = useCallback(async () => {
+    await fetchCategories();
+
+      await fetchVendors();
+    
+  }, [type, fetchCategories, fetchVendors]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const refreshData = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
 
   const handleOpenCreateModal = useCallback((settingType: "category" | "vendor") => {
     setType(settingType);
@@ -42,82 +89,79 @@ export const useSettingVM = () => {
     setIsDetailModalOpen(true);
   }, []);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(1);
-  };
-
   const SettingForm = useSettingForm();
 
-  const onSubmit: SubmitHandler<Setting> = useCallback(async (data) => {
-    setIsLoading(true);
+  const onSubmit: SubmitHandler<Setting> = useCallback(
+    async (data) => {
+      setIsLoading(true);
 
-    try {
-      const payload: Setting = {
-        ...data,
-        id: selectedItem?.id,
-      };
+      try {
+        const payload: Setting = {
+          ...data,
+          id: selectedItem?.id,
+        };
 
-      if (type === "category") {
-        if (mode === "create") {
-          const newCategory = {
-            ...payload,
-          };
-          setCategories(prev => [...prev, newCategory]);
-          showToast("Kategori berhasil ditambahkan!", "SUCCESS");
-        } else {
-          setCategories(prev => 
-            prev.map(cat => cat.id === selectedItem?.id ? { ...cat, ...payload } : cat)
-          );
-          showToast("Kategori berhasil diperbarui!", "SUCCESS");
+        if (type === "category") {
+          if (mode === "create") {
+            const newCategory = {
+              ...payload,
+            };
+            await createCategory(newCategory);
+            showToast("Kategori berhasil ditambahkan!", "SUCCESS");
+          } else {
+            await editCategory(selectedItem!.id!, payload);
+            showToast("Kategori berhasil diperbarui!", "SUCCESS");
+          }
+        } else if (type === "vendor") {
+          if (mode === "create") {
+            const newVendor = {
+              ...payload,
+            };
+            await createVendor(newVendor);
+            showToast("Vendor berhasil ditambahkan!", "SUCCESS");
+          } else {
+             await editVendor(selectedItem!.id!, payload)
+            showToast("Vendor berhasil diperbarui!", "SUCCESS");
+          }
         }
-      } else if (type === "vendor") {
-        if (mode === "create") {
-          const newVendor = {
-            ...payload,
-          };
-          setVendors(prev => [...prev, newVendor]);
-          showToast("Vendor berhasil ditambahkan!", "SUCCESS");
+
+        setIsCreateModalOpen(false);
+        SettingForm.reset();
+
+        await refreshData();
+      } catch (error: any) {
+        showToast(error.message || "Terjadi kesalahan", "ERROR");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [type, mode, selectedItem, SettingForm, showToast, refreshData]
+  );
+
+  const handleDelete = useCallback(
+    async (id: string, itemType: "category" | "vendor") => {
+      setIsLoading(true);
+      try {
+        if (itemType === "category") {
+          await deleteCategory(id);
+          setCategories((prev) => prev.filter((cat) => cat.id !== id));
+          showToast("Kategori berhasil dihapus!", "SUCCESS");
         } else {
-          setVendors(prev => 
-            prev.map(ven => ven.id === selectedItem?.id ? { ...ven, ...payload } : ven)
-          );
-          showToast("Vendor berhasil diperbarui!", "SUCCESS");
+          await deleteVendor(id);
+          setVendors((prev) => prev.filter((ven) => ven.id !== id));
+          showToast("Vendor berhasil dihapus!", "SUCCESS");
         }
+
+        await refreshData();
+      } catch (error: any) {
+        showToast(error.message || "Terjadi kesalahan saat menghapus", "ERROR");
+      } finally {
+        setIsLoading(false);
+        setIsModalOpen(false);
       }
-
-      setIsCreateModalOpen(false);
-      SettingForm.reset();
-      
-    } catch (error: any) {
-      showToast(error.message || "Terjadi kesalahan", "ERROR");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [type, mode, selectedItem, SettingForm, showToast]);
-
-  const handleDelete = useCallback(async (id: string, itemType: "category" | "vendor") => {
-
-    setIsLoading(true);
-    try {
-      if (itemType === "category") {
-        setCategories(prev => prev.filter(cat => cat.id !== id));
-        showToast("Kategori berhasil dihapus!", "SUCCESS");
-      } else {
-        setVendors(prev => prev.filter(ven => ven.id !== id));
-        showToast("Vendor berhasil dihapus!", "SUCCESS");
-      }
-    } catch (error: any) {
-      showToast(error.message || "Terjadi kesalahan saat menghapus", "ERROR");
-    } finally {
-      setIsLoading(false);
-      setIsModalOpen(false)
-    }
-  }, [showToast]);
+    },
+    [showToast, refreshData]
+  );
 
   const handleDownloadAll = async () => {
     try {
@@ -130,21 +174,24 @@ export const useSettingVM = () => {
     }
   };
 
+  const handleTypeChange = useCallback((newType: "category" | "vendor") => {
+    setType(newType);
+  }, []);
+
   return {
     categories,
     vendors,
     isLoading,
+    isLoadingData,
     isCreateModalOpen,
     isModalOpen,
     isDetailModalOpen,
-    currentPage,
-    pageSize,
     totalItems,
     type,
     mode,
     selectedItem,
     SettingForm,
-    
+
     setType,
     setMode,
     setSelectedItem,
@@ -152,14 +199,16 @@ export const useSettingVM = () => {
     setIsCreateModalOpen,
     setIsModalOpen,
     setIsDetailModalOpen,
-    
+
     handleOpenCreateModal,
     handleOpenEditModal,
     handleOpenDetailModal,
     handleDelete,
     handleDownloadAll,
     onSubmit,
-    handlePageChange,
-    handlePageSizeChange,
+    handleTypeChange,
+    refreshData,
+    fetchCategories,
+    fetchVendors,
   };
 };

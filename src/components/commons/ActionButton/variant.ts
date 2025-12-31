@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const actionButtonVariants = cva(
-  "font-bold p-1 rounded-lg cursor-pointer border-2",
+  "font-bold p-1 rounded-xl cursor-pointer border-2",
   {
     variants: {
       intent: {

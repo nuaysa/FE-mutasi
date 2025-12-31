@@ -10,45 +10,62 @@ interface Props {
   onView?: () => void;
   onPrint?: () => void;
   variant?: "PRIMARY" | "SECONDARY";
+  size?:"SMALL" | "ICON"
 }
 
-export default function ActionButton({ onEdit, onDelete, onDownload, onAdd, onView, onPrint, variant = "PRIMARY" }: Props) {
+export default function ActionButton({ onEdit, onDelete, onDownload, onAdd, onView, onPrint,size="ICON", variant = "PRIMARY" }: Props) {
   return (
-    <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
       {onView && 
       <Button 
-      variant="OUTLINE" 
-      size="ICON"
-      onClick={onView} icon={<Search  className={actionButtonVariants({ intent: "view", variant })} />} />}
+     variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+      size={size}
+      className={size === "SMALL" ? actionButtonVariants({ intent: "view", variant }) : ""} 
+      onClick={onView} icon={<Search size={20}  />} 
+       />}
       {onEdit && 
       <Button 
-      variant="OUTLINE" 
-      size="ICON"
-      onClick={onEdit} icon={<Pencil  className={actionButtonVariants({ intent: "edit", variant })} />} />}
+     variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+      size={size}
+      className={size === "SMALL" ? actionButtonVariants({ intent: "edit", variant }) : ""} 
+      onClick={onEdit} icon={<Pencil size={20}  />} 
+       />}
       {onAdd && 
       <Button 
-      variant="OUTLINE" 
-      size="ICON"
-      onClick={onAdd} icon={<Plus  className={actionButtonVariants({ intent: "edit", variant })} />} />}
+     variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+      size={size}
+      className={size === "SMALL" ? actionButtonVariants({ intent: "edit", variant }) : ""} 
+      onClick={onAdd} icon={<Plus size={20}  />} 
+       />}
       {onDelete && 
       <Button 
-      variant="OUTLINE" 
-      size="ICON"
-      onClick={onDelete} icon={<Trash  className={actionButtonVariants({ intent: "delete", variant })}/>} />}
+     variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+      size={size}
+     className={size === "SMALL" ? actionButtonVariants({ intent: "delete", variant }) : ""} 
+      onClick={onDelete} icon={<Trash size={20}   />} 
+       />}
+       
   {onDownload && (
   <Button
-    variant="OUTLINE"
-    size="ICON"
+   variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+    size={size}
     onClick={onDownload}
-    icon={<Download className={actionButtonVariants({ intent: "edit", variant })} />}
+    className={size === "SMALL" ? actionButtonVariants({ intent: "edit", variant }) : ""} 
+    icon={<Download
+    size={20} 
+       />}
   />
 )}
 
       {onPrint && 
       <Button 
-      variant="OUTLINE" 
-      size="ICON"
-      onClick={onPrint} icon={<Printer className={actionButtonVariants({ intent: "view", variant })} size={24} />} />}
+     variant={size === "SMALL" ? "PLAIN" : "OUTLINE"}
+      size={size}
+      className={size === "SMALL" ? actionButtonVariants({ intent: "view", variant }) : ""} 
+      onClick={onPrint} icon={<Printer 
+        size={20}  />} 
+      />
+      }
     </div>
-  );
+  )
 }

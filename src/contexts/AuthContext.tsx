@@ -13,22 +13,22 @@ import {
 import { getProfile, logoutAPI } from "@/api/auth";
 import type { LogoutParam } from "@/api/types/types";
 import AuthLoading from "@/components/commons/AuthLoading";
+import { STORAGE_KEYS } from "@/utils/constant";
 
 type UserProfile = {
   id: string;
   name: string;
   email?: string;
-  role: "superadmin" | "admin" | "user";
+  role: "admin" | "user";
 };
 
 type AuthContextType = {
-  afterSuccessLogin: (token: string, refreshToken: string) => Promise<void>;
+  afterSuccessLogin: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   clearLogout: () => void;
   userProfile: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  isSuperAdmin: boolean;
   isAdmin: boolean;
   isUser: boolean;
   refreshProfile: () => Promise<void>;
@@ -42,7 +42,6 @@ const defaultAuth: AuthContextType = {
   userProfile: null,
   isAuthenticated: false,
   isLoading: true,
-  isSuperAdmin: false,
   isAdmin: false,
   isUser: false,
   refreshProfile: async () => {},
@@ -52,12 +51,6 @@ const defaultAuth: AuthContextType = {
 export const AuthContext = createContext<AuthContextType>(defaultAuth);
 export const useAuthContext = () => useContext(AuthContext);
 
-const STORAGE_KEYS = {
-  TOKEN: 'anshorussunnah_token',
-  REFRESH_TOKEN: 'anshorussunnah_refresh_token',
-  EXPIRY: 'anshorussunnah_expiry',
-  PROFILE: 'anshorussunnah_profile',
-};
 
 export default function AuthContextProvider({
   children,
@@ -66,7 +59,7 @@ export default function AuthContextProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [token, setToken] = useState<string | null>(null);
@@ -85,7 +78,7 @@ export default function AuthContextProvider({
     
     deleteCookie(STORAGE_KEYS.TOKEN);
     setUserProfile(null);
-    setIsAuthenticated(true);
+    setIsAuthenticated(false);
     setToken(null);
   }, []);
 
@@ -101,15 +94,12 @@ export default function AuthContextProvider({
     }
   }, []);
 
-  const afterSuccessLogin = useCallback(async (token: string, refreshToken: string) => {
+  const afterSuccessLogin = useCallback(async (token: string) => {
     try {
-      const expiredSeconds = 60 * 60 * 24 * 30;
-      const expiredDate = new Date(Date.now() + expiredSeconds * 1000);
+      const expiredSeconds = 60 * 60 * 24;
       
       if (typeof window !== 'undefined') {
         localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-        localStorage.setItem(STORAGE_KEYS.EXPIRY, expiredDate.toISOString());
       }
       
       setCookie(STORAGE_KEYS.TOKEN, token, { 
@@ -141,12 +131,12 @@ export default function AuthContextProvider({
 
   const logout = useCallback(async () => {
     try {
-      const refreshToken = typeof window !== 'undefined' 
-        ? localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem(STORAGE_KEYS.TOKEN)
         : null;
       
-      if (refreshToken) {
-        const param: LogoutParam = { refreshToken };
+      if (token) {
+        const param: LogoutParam = { token };
         await logoutAPI(param);
       }
     } catch (error) {
@@ -157,8 +147,7 @@ export default function AuthContextProvider({
     }
   }, [router, clearLogout]);
 
-  const { isSuperAdmin, isAdmin, isUser } = useMemo(() => ({
-    isSuperAdmin: userProfile?.role === 'superadmin',
+  const {  isAdmin, isUser } = useMemo(() => ({
     isAdmin: userProfile?.role === 'admin',
     isUser: userProfile?.role === 'user',
   }), [userProfile?.role]);
@@ -173,9 +162,8 @@ export default function AuthContextProvider({
       try {
         const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
         const storedProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
-        const expiry = localStorage.getItem(STORAGE_KEYS.EXPIRY);
 
-        if (!storedToken || (expiry && new Date(expiry) < new Date())) {
+        if (!storedToken) {
           clearLogout();
           setIsLoading(false);
           return;
@@ -211,7 +199,7 @@ export default function AuthContextProvider({
   useEffect(() => {
     if (isLoading || typeof window === 'undefined') return;
 
-    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+    const publicPaths = ['/login'];
     const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
 
     if (!isAuthenticated && !isPublicPath) {
@@ -229,7 +217,6 @@ export default function AuthContextProvider({
     userProfile,
     isAuthenticated,
     isLoading,
-    isSuperAdmin,
     isAdmin,
     isUser,
     refreshProfile,
@@ -241,7 +228,6 @@ export default function AuthContextProvider({
     userProfile,
     isAuthenticated,
     isLoading,
-    isSuperAdmin,
     isAdmin,
     isUser,
     refreshProfile,

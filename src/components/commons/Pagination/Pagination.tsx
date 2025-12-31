@@ -67,40 +67,11 @@ export default function Pagination({
   return (
     <div
       className={cn(
-        "flex items-center justify-between w-full space-x-2 mt-4",
+        "flex items-center justify-between w-full space-x-2 my-4",
         className ?? ""
       )}
     >
-      <div className="flex gap-2 items-center text-sm text-neutral-black">
-        Show:
-        <div className="relative">
-          <Select
-            value={perPage ? String(perPage) : undefined}
-            onValueChange={(val: any) => onPerPageChange(Number(val))}
-          >
-            <SelectTrigger className="w-15 p-2 border-2 border-neutral-gray2 rounded-md text-sm bg-neutral-white text-neutral-black focus:ring-2 focus:ring-primary-main">
-              <SelectValue placeholder="Pilih" />
-            </SelectTrigger>
-
-            <SelectContent className="bg-neutral-white w-40 border border-neutral-gray2 rounded-md">
-              {[25, 35, 45].map((val) => (
-                <SelectItem
-                  key={val}
-                  value={String(val)}
-                  className="text-neutral-black hover:bg-neutral-gray2 cursor-pointer"
-                >
-                  {val}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-            <ChevronDown className="text-neutral-black w-4 h-4" />
-          </div>
-        </div>
-      </div>
-
+    
       <div className="flex items-center gap-2 max-w-1/2">
         {currentPage !== 1 && (
           <button

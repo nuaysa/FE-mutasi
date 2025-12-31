@@ -28,10 +28,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col px-7 h-screen items-center justify-center bg-neutral-white">
-      <div className="w-full md:hidden flex justify-center p-5">
-        <Image src="/assets/Full.png" alt="Eraspace One" width={200} height={60} priority />
-      </div>
+    <div className="flex flex-col px-7 h-screen items-center justify-center bg-linear-to-br from-primary-surface to-white z-50">
+ 
       <form onSubmit={form.handleSubmit(onSubmit)} className="bg-neutral-white lg:m-0 shadow-md rounded-lg p-8 w-full max-w-md flex flex-col gap-6">
         <h1 className="text-center text-xl font-semibold text-neutral-900">Masuk ke Akun Anda</h1>
         <div className="w-full">

@@ -15,8 +15,8 @@ export default function MobileHeader() {
   const pathname = usePathname();
 
   const profile = userProfile?.name.toUpperCase().charAt(0);
-  const userName = userProfile?.name || "User";
-  const userRole = userProfile?.role || "Admin";
+  const userName = userProfile?.name;
+  const userRole = userProfile?.role;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,6 +47,14 @@ export default function MobileHeader() {
     },
   ];
 
+  if (userRole === "admin") {
+    navItems.push({
+      name: "User",
+      href: "/users",
+      icon: Users,
+    });
+  }
+
   return (
     <header className="sticky top-0 w-full bg-white border-b border-neutral-gray2 z-50">
       <div className="flex items-center justify-between px-4 py-3">
@@ -55,14 +63,12 @@ export default function MobileHeader() {
             <Image src="/assets/logo.png" alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex flex-col leading-tight">
-            <p className="text-sm font-bold text-primary-dark">Anshorussunnah</p>
+            <p className="text-sm font-bold text-black">Anshorussunnah</p>
             <p className="text-[10px] text-neutral-gray1">Finance</p>
           </div>
         </Link>
 
         <div className="flex items-center gap-3">
-  
-
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-lg hover:bg-neutral-gray4 transition-colors" aria-label="Toggle menu">
             {isMenuOpen ? <X className="w-5 h-5 text-neutral-black" /> : <Menu className="w-5 h-5 text-neutral-black" />}
           </button>
@@ -91,25 +97,45 @@ export default function MobileHeader() {
           <h4 className="text-xs font-semibold text-neutral-gray1 uppercase tracking-wider mb-3 px-2">Menu Utama</h4>
 
           <nav className="space-y-1 mb-6">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || pathname?.startsWith(item.href);
+          {navItems.map((item) => {
+  const Icon = item.icon;
 
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={cn("flex items-center justify-between p-3 rounded-xl transition-all duration-200", isActive ? "bg-primary-main text-white" : "hover:bg-neutral-gray4 text-neutral-black")}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-neutral-gray1")} />
-                    <span className="font-medium">{item.name}</span>
-                  </div>
-                  <ChevronRight className={cn("w-4 h-4", isActive ? "text-white" : "text-neutral-gray2")} />
-                </Link>
-              );
-            })}
+  const isActive =
+    item.href === "/"
+      ? pathname === "/"
+      : pathname?.startsWith(item.href);
+
+  return (
+    <Link
+      key={item.name}
+      href={item.href}
+      onClick={() => setIsMenuOpen(false)}
+      className={cn(
+        "flex items-center justify-between p-3 rounded-xl transition-all duration-200",
+        isActive
+          ? "bg-primary-main text-white"
+          : "hover:bg-neutral-gray4 text-neutral-black"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <Icon
+          className={cn(
+            "w-5 h-5",
+            isActive ? "text-white" : "text-neutral-gray1"
+          )}
+        />
+        <span className="font-medium">{item.name}</span>
+      </div>
+      <ChevronRight
+        className={cn(
+          "w-4 h-4",
+          isActive ? "text-white" : "text-neutral-gray2"
+        )}
+      />
+    </Link>
+  );
+})}
+
           </nav>
 
           <button
@@ -124,7 +150,7 @@ export default function MobileHeader() {
           </button>
 
           <div className="mt-8 pt-4 items-end border-t border-neutral-gray2 text-center">
-            <p className="text-xs text-neutral-primary-main">
+            <p className="text-xs text-primary-main">
               Developed by <Link href={"https://aysa.bim.web.id/"}> A </Link> • Anshorussunnah
             </p>
           </div>

@@ -1,60 +1,47 @@
-// import { createURLParams } from "@/utils/helpers";
-// import { axios } from "..";
-// import apiResolver from "../apiResolver";
-// import type { GetAllEventsParams, InputEventParams } from "../types/types";
+import { createURLParams } from "@/utils/helpers";
+import { axios } from "..";
+import apiResolver from "../apiResolver";
+import { GetAllmutationsParams, InputMutationParams } from "../types/types";
 
-// export function getAllEvents(params: GetAllEventsParams) {
-//   const { size, search, page, createdAt, publishStatus, ...others } = params;
+export function getAllMutations(params: GetAllmutationsParams) {
+  const { size, page, vendorId, date, type, categoryId, ...others } = params;
 
-//   const queryParams = createURLParams({
-//     size,
-//     search,
-//     page,
-//     createdAt,
-//     publishStatus,
-//     ...others,
-//   });
+  const queryParams = createURLParams({
+    size,
 
-//   return apiResolver(() => axios.get(`v1/dashboard/events${queryParams}`), {
-//     throwErrorObject: true,
-//   });
-// }
+    page,
+    vendorId,
+    date,
+    type,
+    categoryId,
+    ...others,
+  });
 
-// export function getEventById(id: string) {
-//   return apiResolver(() => axios.get(`v1/dashboard/events/${id}`), {
-//     throwErrorObject: true,
-//   });
-// }
+  return apiResolver(() => axios.get(`transaction/${queryParams}`), {
+    throwErrorObject: true,
+  });
+}
 
-// export function updateEventToggle(id: string) {
-//   return apiResolver(
-//     () => axios.put(`v1/dashboard/events/${id}/toggle/publish`),
-//     {
-//       throwErrorObject: true,
-//     }
-//   );
-// }
+export function getMutationById(id: string) {
+  return apiResolver(() => axios.get(`transaction/${id}`), {
+    throwErrorObject: true,
+  });
+}
 
-// export function deleteEvent(id: string) {
-//   return apiResolver(() => axios.delete(`v1/dashboard/events/${id}`), {
-//     throwErrorObject: true,
-//   });
-// }
+export function getSantriDebts(id: string) {
+  return apiResolver(() => axios.get(`transaction/debts/${id}/?status=open`), {
+    throwErrorObject: true,
+  });
+}
 
-// export function createEvent(data: InputEventParams) {
-//   return apiResolver(() => axios.post(`v1/dashboard/events`, data), {
-//     throwErrorObject: true,
-//   });
-// }
+export function createMutation(data: InputMutationParams) {
+  return apiResolver(() => axios.post(`transaction/`, data), {
+    throwErrorObject: true,
+  });
+}
 
-// export function editEvent({
-//   id,
-//   data,
-// }: {
-//   id: string;
-//   data: InputEventParams;
-// }) {
-//   return apiResolver(() => axios.put(`v1/dashboard/events/${id}`, data), {
-//     throwErrorObject: true,
-//   });
-// }
+export function editMutation({ id, data }: { id: string; data: InputMutationParams }) {
+  return apiResolver(() => axios.patch(`transaction/${id}`, data), {
+    throwErrorObject: true,
+  });
+}
