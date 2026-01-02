@@ -59,7 +59,7 @@ export const getSharedFieldOptions = (
 
 export const getPurposeOptions = (
   mode: string, 
-  selectedVendor?: string | null
+  vendor?: boolean
 ) => {
   if (mode === "income") {
     return [
@@ -71,7 +71,7 @@ export const getPurposeOptions = (
   }
   
   if (mode === "expense") {
-    if (selectedVendor) {
+    if (vendor) {
       return [{ value: "other", label: "Lainnya" }];
     }
     
